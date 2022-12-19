@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{D9379DE1-DFF6-4190-ACC5-913D9D22AB22}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition="'$(VisualStudioVersion)'&gt;='16.0'">10.0</WindowsTargetPlatformVersion>
+    <ProjectName>gcv_reshade</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration">
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)'=='16.0'">v142</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)'=='17.0'">v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)'=='Debug'">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)'=='Release'">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup>
+    <OutDir>..\build\bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>..\build\intermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <TargetName>cv_captures</TargetName>
+    <TargetExt>.addon</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>..;..\3rdparty;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>..;..\3rdparty;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_DEPRECATE;NOMINMAX;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\reshade-5.5.2\include;..\..\reshade-5.5.2\deps\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <DisableSpecificWarnings>4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_DEPRECATE;NOMINMAX;ImTextureID=ImU64;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\reshade-5.5.2\include;..\..\reshade-5.5.2\deps\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <DisableSpecificWarnings>4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+    </Link>
+    <PostBuildEvent />
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\3rdparty\cnpy.cpp" />
+    <ClCompile Include="..\3rdparty\fpzip\error.cpp" />
+    <ClCompile Include="..\3rdparty\fpzip\rcdecoder.cpp" />
+    <ClCompile Include="..\3rdparty\fpzip\rcencoder.cpp" />
+    <ClCompile Include="..\3rdparty\fpzip\rcqsmodel.cpp" />
+    <ClCompile Include="..\3rdparty\fpzip\read.cpp" />
+    <ClCompile Include="..\3rdparty\fpzip\version.cpp" />
+    <ClCompile Include="..\3rdparty\fpzip\write.cpp" />
+    <ClCompile Include="..\gcv_games\Control.cpp" />
+    <ClCompile Include="..\gcv_games\Crysis.cpp" />
+    <ClCompile Include="..\gcv_games\Cyberpunk2077.cpp" />
+    <ClCompile Include="..\gcv_games\game_interface.cpp" />
+    <ClCompile Include="..\gcv_games\game_interface_factory.cpp" />
+    <ClCompile Include="..\gcv_utils\geometry.cpp" />
+    <ClCompile Include="..\gcv_utils\image_queue_entry.cpp" />
+    <ClCompile Include="..\gcv_utils\memread.cpp" />
+    <ClCompile Include="..\gcv_utils\miscutils.cpp" />
+    <ClCompile Include="..\gcv_utils\simple_packed_buf.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="copy_texture_into_packedbuf.cpp" />
+    <ClCompile Include="image_writer_thread_pool.cpp" />
+    <ClCompile Include="tex_buffer_utils.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\3rdparty\cnpy.h" />
+    <ClInclude Include="..\3rdparty\concurrentqueue.h" />
+    <ClInclude Include="..\3rdparty\fpzip\codec.h" />
+    <ClInclude Include="..\3rdparty\fpzip\fpe.h" />
+    <ClInclude Include="..\3rdparty\fpzip\fpzip.h" />
+    <ClInclude Include="..\3rdparty\fpzip\front.h" />
+    <ClInclude Include="..\3rdparty\fpzip\pccodec.h" />
+    <ClInclude Include="..\3rdparty\fpzip\pcdecoder.h" />
+    <ClInclude Include="..\3rdparty\fpzip\pcencoder.h" />
+    <ClInclude Include="..\3rdparty\fpzip\pcmap.h" />
+    <ClInclude Include="..\3rdparty\fpzip\rcdecoder.h" />
+    <ClInclude Include="..\3rdparty\fpzip\rcencoder.h" />
+    <ClInclude Include="..\3rdparty\fpzip\rcmodel.h" />
+    <ClInclude Include="..\3rdparty\fpzip\rcqsmodel.h" />
+    <ClInclude Include="..\3rdparty\fpzip\read.h" />
+    <ClInclude Include="..\3rdparty\fpzip\types.h" />
+    <ClInclude Include="..\3rdparty\fpzip\write.h" />
+    <ClInclude Include="..\3rdparty\stb_image_write.h" />
+    <ClInclude Include="..\gcv_games\Control.h" />
+    <ClInclude Include="..\gcv_games\Crysis.h" />
+    <ClInclude Include="..\gcv_games\Cyberpunk2077.h" />
+    <ClInclude Include="..\gcv_games\game_interface_factory.h" />
+    <ClInclude Include="..\gcv_games\game_interface.h" />
+    <ClInclude Include="..\gcv_games\game_interface_factory_registration.h" />
+    <ClInclude Include="..\gcv_utils\geometry.h" />
+    <ClInclude Include="..\gcv_utils\image_queue_entry.h" />
+    <ClInclude Include="..\gcv_utils\memread.h" />
+    <ClInclude Include="..\gcv_utils\miscutils.h" />
+    <ClInclude Include="..\gcv_utils\simple_packed_buf.h" />
+    <ClInclude Include="generic_depth_struct.h" />
+    <ClInclude Include="image_writer_thread_pool.h" />
+    <ClInclude Include="copy_texture_into_packedbuf.h" />
+    <ClInclude Include="tex_buffer_utils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\3rdparty\fpzip\fpe.inl" />
+    <None Include="..\3rdparty\fpzip\pccodec.inl" />
+    <None Include="..\3rdparty\fpzip\pcdecoder.inl" />
+    <None Include="..\3rdparty\fpzip\pcencoder.inl" />
+    <None Include="..\3rdparty\fpzip\pcmap.inl" />
+    <None Include="..\3rdparty\fpzip\rcdecoder.inl" />
+    <None Include="..\3rdparty\fpzip\rcencoder.inl" />
+    <None Include="..\3rdparty\fpzip\rcqsmodel.inl" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

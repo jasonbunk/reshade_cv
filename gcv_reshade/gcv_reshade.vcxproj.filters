@@ -1,0 +1,215 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\3rdparty\cnpy.cpp">
+      <Filter>3rdparty</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gcv_utils\image_queue_entry.cpp">
+      <Filter>gcv_utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gcv_utils\memread.cpp">
+      <Filter>gcv_utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gcv_utils\miscutils.cpp">
+      <Filter>gcv_utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gcv_utils\simple_packed_buf.cpp">
+      <Filter>gcv_utils</Filter>
+    </ClCompile>
+    <ClCompile Include="copy_texture_into_packedbuf.cpp">
+      <Filter>gcv_reshade</Filter>
+    </ClCompile>
+    <ClCompile Include="image_writer_thread_pool.cpp">
+      <Filter>gcv_reshade</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>gcv_reshade</Filter>
+    </ClCompile>
+    <ClCompile Include="tex_buffer_utils.cpp">
+      <Filter>gcv_reshade</Filter>
+    </ClCompile>
+    <ClCompile Include="..\3rdparty\fpzip\error.cpp">
+      <Filter>3rdparty\fpzip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\3rdparty\fpzip\rcdecoder.cpp">
+      <Filter>3rdparty\fpzip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\3rdparty\fpzip\rcencoder.cpp">
+      <Filter>3rdparty\fpzip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\3rdparty\fpzip\rcqsmodel.cpp">
+      <Filter>3rdparty\fpzip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\3rdparty\fpzip\read.cpp">
+      <Filter>3rdparty\fpzip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\3rdparty\fpzip\version.cpp">
+      <Filter>3rdparty\fpzip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\3rdparty\fpzip\write.cpp">
+      <Filter>3rdparty\fpzip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gcv_games\game_interface.cpp">
+      <Filter>gcv_games</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gcv_games\Crysis.cpp">
+      <Filter>gcv_games</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gcv_utils\geometry.cpp">
+      <Filter>gcv_utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gcv_games\Cyberpunk2077.cpp">
+      <Filter>gcv_games</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gcv_games\Control.cpp">
+      <Filter>gcv_games</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gcv_games\game_interface_factory.cpp">
+      <Filter>gcv_games</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\3rdparty\concurrentqueue.h">
+      <Filter>3rdparty</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdparty\cnpy.h">
+      <Filter>3rdparty</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdparty\stb_image_write.h">
+      <Filter>3rdparty</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gcv_utils\image_queue_entry.h">
+      <Filter>gcv_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gcv_utils\memread.h">
+      <Filter>gcv_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gcv_utils\miscutils.h">
+      <Filter>gcv_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gcv_utils\simple_packed_buf.h">
+      <Filter>gcv_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="copy_texture_into_packedbuf.h">
+      <Filter>gcv_reshade</Filter>
+    </ClInclude>
+    <ClInclude Include="generic_depth_struct.h">
+      <Filter>gcv_reshade</Filter>
+    </ClInclude>
+    <ClInclude Include="image_writer_thread_pool.h">
+      <Filter>gcv_reshade</Filter>
+    </ClInclude>
+    <ClInclude Include="tex_buffer_utils.h">
+      <Filter>gcv_reshade</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdparty\fpzip\codec.h">
+      <Filter>3rdparty\fpzip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdparty\fpzip\fpe.h">
+      <Filter>3rdparty\fpzip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdparty\fpzip\fpzip.h">
+      <Filter>3rdparty\fpzip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdparty\fpzip\front.h">
+      <Filter>3rdparty\fpzip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdparty\fpzip\pccodec.h">
+      <Filter>3rdparty\fpzip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdparty\fpzip\pcdecoder.h">
+      <Filter>3rdparty\fpzip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdparty\fpzip\pcencoder.h">
+      <Filter>3rdparty\fpzip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdparty\fpzip\pcmap.h">
+      <Filter>3rdparty\fpzip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdparty\fpzip\rcdecoder.h">
+      <Filter>3rdparty\fpzip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdparty\fpzip\rcencoder.h">
+      <Filter>3rdparty\fpzip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdparty\fpzip\rcmodel.h">
+      <Filter>3rdparty\fpzip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdparty\fpzip\rcqsmodel.h">
+      <Filter>3rdparty\fpzip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdparty\fpzip\read.h">
+      <Filter>3rdparty\fpzip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdparty\fpzip\types.h">
+      <Filter>3rdparty\fpzip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdparty\fpzip\write.h">
+      <Filter>3rdparty\fpzip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gcv_games\game_interface_factory.h">
+      <Filter>gcv_games</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gcv_games\game_interface.h">
+      <Filter>gcv_games</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gcv_games\Crysis.h">
+      <Filter>gcv_games</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gcv_utils\geometry.h">
+      <Filter>gcv_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gcv_games\Cyberpunk2077.h">
+      <Filter>gcv_games</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gcv_games\Control.h">
+      <Filter>gcv_games</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gcv_games\game_interface_factory_registration.h">
+      <Filter>gcv_games</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="3rdparty">
+      <UniqueIdentifier>{cb01a159-16ea-42ab-82aa-1f540bb83a22}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gcv_utils">
+      <UniqueIdentifier>{6a9aad9a-e3f9-451f-b5a2-07636192ebc4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gcv_reshade">
+      <UniqueIdentifier>{a107ed8a-d794-4ed7-ae47-a3a121ff9442}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gcv_games">
+      <UniqueIdentifier>{9e85a5a2-f143-4663-9f04-69d11ee83617}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rdparty\fpzip">
+      <UniqueIdentifier>{ebc3f676-9632-4fca-8cca-3435a5c9d072}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\3rdparty\fpzip\fpe.inl">
+      <Filter>3rdparty\fpzip</Filter>
+    </None>
+    <None Include="..\3rdparty\fpzip\pccodec.inl">
+      <Filter>3rdparty\fpzip</Filter>
+    </None>
+    <None Include="..\3rdparty\fpzip\pcdecoder.inl">
+      <Filter>3rdparty\fpzip</Filter>
+    </None>
+    <None Include="..\3rdparty\fpzip\pcencoder.inl">
+      <Filter>3rdparty\fpzip</Filter>
+    </None>
+    <None Include="..\3rdparty\fpzip\pcmap.inl">
+      <Filter>3rdparty\fpzip</Filter>
+    </None>
+    <None Include="..\3rdparty\fpzip\rcdecoder.inl">
+      <Filter>3rdparty\fpzip</Filter>
+    </None>
+    <None Include="..\3rdparty\fpzip\rcencoder.inl">
+      <Filter>3rdparty\fpzip</Filter>
+    </None>
+    <None Include="..\3rdparty\fpzip\rcqsmodel.inl">
+      <Filter>3rdparty\fpzip</Filter>
+    </None>
+  </ItemGroup>
+</Project>
