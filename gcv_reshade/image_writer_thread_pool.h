@@ -33,13 +33,13 @@ public:
 	depth_tex_settings depth_settings;
 	std::wstring images_save_dir = L"cv_saved";
 
+	bool camcoordsinitialized = false;
 	bool grabcamcoords = false;
-	int64_t imguicamscandesired = -1;
-	int imguicamscanslider = 0x4AA7A20;
 
 	// methods from GameInterface
 	bool init_on_startup();
 	bool init_in_game();
+	bool game_knows_depthbuffer();
 	std::string gamename_simpler();
 	std::string gamename_verbose();
 	uint8_t get_camera_matrix(CamMatrix &rcam, std::string &errstr);

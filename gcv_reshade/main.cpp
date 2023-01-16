@@ -27,6 +27,8 @@ static void on_reshade_finish_effects(reshade::api::effect_runtime *runtime,
 	uint8_t camstatus = CamMatrix_Uninitialized;
 	CamMatrix gamecam;
 	std::string errstr;
+	bool shaderupdatedwithcampos = false;
+	float shadercamposbuf[4];
 
 	if (runtime->is_key_pressed(VK_F11))
 	{
@@ -42,7 +44,7 @@ static void on_reshade_finish_effects(reshade::api::effect_runtime *runtime,
 			ImageWriter_STB_png, cmdqueue, device->get_resource_from_view(rtv), false))
 		{
 			if (shdata.save_texture_image_needing_resource_barrier_copy(basefilen + std::string("depth"),
-				ImageWriter_STB_png | ImageWriter_numpy | ImageWriter_fpzip, cmdqueue, genericdepdata.selected_depth_stencil, true))
+				ImageWriter_STB_png | ImageWriter_numpy | (shdata.game_knows_depthbuffer() ? ImageWriter_fpzip : 0), cmdqueue, genericdepdata.selected_depth_stencil, true))
 			{
 				camstatus = shdata.get_camera_matrix(gamecam, errstr);
 				//const char *sercamdata = shdata.get_serialized_camera_data(errstr);
@@ -51,7 +53,7 @@ static void on_reshade_finish_effects(reshade::api::effect_runtime *runtime,
 					if (!camstr.empty()) {
 						std::ofstream outjson(shdata.output_filepath_creates_outdir_if_needed(basefilen + std::string("camera.json")));
 						if (outjson.is_open() && outjson.good()) {
-							outjson << "{\"time_ms\":" << milliselps << ",\"camdata\":" << camstr << "}" << std::endl;
+							outjson << "{\"time_ms\":" << milliselps << ",\"extrinsic_cam2world\":" << camstr << "}" << std::endl;
 							outjson.close();
 							reshade::log_message(3, std::string(
 								std::string("Captured RGB, depth buffers, and camera data at time ") + milliselps).c_str());
@@ -76,58 +78,62 @@ static void on_reshade_finish_effects(reshade::api::effect_runtime *runtime,
 		} else {
 			reshade::log_message(1, "Failed to capture RGB display buffer...");
 		}
+		errstr.clear();
 	}
-	shdata.print_waiting_log_messages();
 
 	if(shdata.grabcamcoords) {
 		if (camstatus == CamMatrix_Uninitialized) {
 			camstatus = shdata.get_camera_matrix(gamecam, errstr);
 		}
 		if (camstatus != CamMatrix_Uninitialized) {
-			float gotcampos[4];
-			gotcampos[0] = gamecam.GetPosition().x;
-			gotcampos[1] = gamecam.GetPosition().y;
-			gotcampos[2] = gamecam.GetPosition().z;
-			gotcampos[3] = 0.0f;
-			runtime->set_uniform_value_float(runtime->find_uniform_variable("displaycamcoords.fx", "dispcam_latestcampos"), gotcampos, 3);
+			shadercamposbuf[3] = 1.0f;
+			if (camstatus & CamMatrix_PositionGood || camstatus & CamMatrix_WIP) {
+				shadercamposbuf[0] = gamecam.GetPosition().x;
+				shadercamposbuf[1] = gamecam.GetPosition().y;
+				shadercamposbuf[2] = gamecam.GetPosition().z;
+				runtime->set_uniform_value_float(runtime->find_uniform_variable("displaycamcoords.fx", "dispcam_latestcampos"), shadercamposbuf, 4);
+				shaderupdatedwithcampos = true;
+			}
+			if (camstatus & CamMatrix_RotationGood || camstatus & CamMatrix_WIP) {
+				for (int colidx = 0; colidx < 3; ++colidx) {
+					shadercamposbuf[0] = gamecam.GetCol(colidx).x;
+					shadercamposbuf[1] = gamecam.GetCol(colidx).y;
+					shadercamposbuf[2] = gamecam.GetCol(colidx).z;
+					runtime->set_uniform_value_float(runtime->find_uniform_variable("displaycamcoords.fx", (std::string("dispcam_latestcamcol")+std::to_string(colidx)).c_str()), shadercamposbuf, 4);
+				}
+				shaderupdatedwithcampos = true;
+			}
 		}
 	}
+	if (!shdata.camcoordsinitialized) {
+		if (!shaderupdatedwithcampos) {
+			shadercamposbuf[0] = 0.0f;
+			shadercamposbuf[1] = 0.0f;
+			shadercamposbuf[2] = 0.0f;
+			shadercamposbuf[3] = 0.0f;
+			runtime->set_uniform_value_float(runtime->find_uniform_variable("displaycamcoords.fx", "dispcam_latestcampos"), shadercamposbuf, 4);
+		}
+		shdata.camcoordsinitialized = true;
+	}
+	shdata.print_waiting_log_messages();
 }
 
 static void draw_settings_overlay(reshade::api::effect_runtime *runtime)
 {
 	image_writer_thread_pool &shdata = runtime->get_private_data<image_writer_thread_pool>();
 	ImGui::Checkbox("Depth map: debug mode", &shdata.depth_settings.debug_mode);
-	ImGui::Checkbox("Depth map: reciprocal?", &shdata.depth_settings.reciprocal);
-	ImGui::Checkbox("Depth map: subtract int?", &shdata.depth_settings.subtractfrom);
+	ImGui::Checkbox("Depth map: verbose mode", &shdata.depth_settings.more_verbose);
 	ImGui::Checkbox("Depth map: already float?", &shdata.depth_settings.alreadyfloat);
 	ImGui::Checkbox("Depth map: float endian flip?", &shdata.depth_settings.float_reverse_endian);
 	ImGui::Checkbox("Grab camera coordinates every frame?", &shdata.grabcamcoords);
 	ImGui::SliderInt("Depth map: row pitch rescale (powers of 2)", &shdata.depth_settings.adjustpitchhack, -8, 8);
 	ImGui::SliderInt("Depth map: bytes per pix", &shdata.depth_settings.depthbytes, 0, 8);
 	ImGui::SliderInt("Depth map: bytes per pix to keep", &shdata.depth_settings.depthbyteskeep, 0, 8);
-	ImGui::SliderInt("Depth map: normalization (power of 2)", &shdata.depth_settings.depthnormalization, 0, 64);
-	if (ImGui::Button("log all shader uniform variables")) {
-		runtime->enumerate_uniform_variables(nullptr, [](reshade::api::effect_runtime *runtime, auto variable) {
-			char source[256] = ""; memset(source, 0, 256); size_t buflen = 256;
-			runtime->get_uniform_variable_name(variable, source, &buflen);
-			std::string varname(source);
-			//get_uniform_variable_type(effect_uniform_variable variable, format *out_base_type, uint32_t *out_rows = nullptr, uint32_t *out_columns = nullptr, uint32_t *out_array_length = nullptr)
-			reshade::api::format fndtype; uint32_t fndrows = 0; uint32_t fndcols = 0; uint32_t fndarlen = 0;
-			runtime->get_uniform_variable_type(variable, &fndtype, &fndrows, &fndcols, &fndarlen);
-			reshade::log_message(3, std::string(varname+std::string(" of type ")+std::to_string(static_cast<int64_t>(fndtype))+std::string(" of shape ")+std::to_string(fndcols)+std::string(" x ")+std::to_string(fndrows)+std::string(" of len ")+std::to_string(fndarlen)).c_str());
-		});
-	}
 	if (shdata.grabcamcoords) {
 		CamMatrix lcam; std::string errstr;
 		if (shdata.get_camera_matrix(lcam, errstr) != CamMatrix_Uninitialized) {
-			ImGui::InputInt("Cam scanner mem start", &shdata.imguicamscanslider);
-			if (ImGui::Button("Start cam scan")) {
-				shdata.imguicamscandesired = static_cast<int64_t>(shdata.imguicamscanslider);
-			}
 			ImGui::Text("%f, %f, %f", lcam.GetPosition().x, lcam.GetPosition().y, lcam.GetPosition().z);
-		}
-		else {
+		} else {
 			ImGui::Text(errstr.c_str());
 		}
 	}

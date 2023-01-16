@@ -7,8 +7,6 @@
 #include <string>
 #include <unordered_map>
 
-// https://github.com/Derydoca/factory-auto-registration
-
 class GameInterface;
 
 typedef GameInterface *(*gameinterfcInstanceGenerator)();

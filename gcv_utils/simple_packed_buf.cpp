@@ -5,8 +5,10 @@ size_t simple_packed_buf::bytes_per_pixel() const {
 	switch (pixfmt) {
 	case BUF_PIX_FMT_RGB24: return 3;
 	case BUF_PIX_FMT_RGBA: return 4;
+	case BUF_PIX_FMT_GRAYU32: return 4;
 	case BUF_PIX_FMT_GRAYF32: return sizeof(float);
 	}
+	// TODO: raise error!
 	return 0;
 }
 

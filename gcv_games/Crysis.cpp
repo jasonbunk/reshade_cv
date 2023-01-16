@@ -2,25 +2,19 @@
 #include "Crysis.h"
 #include "gcv_utils/memread.h"
 
-std::string GameCrysis::gamename_verbose() const {
-	return "Crysis2008_GOG_DX10_x64"; // tested for this build
+std::string GameCrysis::gamename_verbose() const { return "Crysis2008_GOG_DX10_x64"; } // tested for this build
+
+std::string GameCrysis::camera_dll_name() const { return "Cry3DEngine.dll"; }
+uint64_t GameCrysis::camera_dll_mem_start() const { return 0x2008F0ull; }
+GameCamDLLMatrixType GameCrysis::camera_dll_matrix_format() const { return GameCamDLLMatrix_3x4; }
+
+bool GameCrysis::can_interpret_depth_buffer() const {
+	return true;
 }
 
-bool GameCrysis::init_in_game() {
-	if (renderer_dll != 0)
-		return true;
-	renderer_dll = GetModuleHandle(TEXT("Cry3DEngine.dll"));
-	return renderer_dll != 0;
-}
+#define NEAR_PLANE_DISTANCE 0.25
 
-uint8_t GameCrysis::get_camera_matrix(CamMatrix &rcam, std::string &errstr) {
-	if (!init_in_game()) return CamMatrix_Uninitialized;
-	UINT_PTR dll4cambaseaddr = (UINT_PTR)renderer_dll;
-	SIZE_T nbytesread = 0;
-	if (tryreadmemory(gamename_verbose()+std::string("_3x4cam"), errstr, mygame_handle_exe,
-			(void *)(dll4cambaseaddr + 0x2008F0ull), reinterpret_cast<LPVOID>(rcam.arr3x4),
-			12 * sizeof(float), &nbytesread)) {
-		return CamMatrix_AllGood;
-	}
-	return CamMatrix_Uninitialized;
+float GameCrysis::convert_to_physical_distance_depth_u64(uint64_t depthval) const {
+	// approximating (1-near/far) as nearly 1
+	return NEAR_PLANE_DISTANCE * 16777216.0 / static_cast<double>(std::max(1ull, 16777216ull - depthval));
 }

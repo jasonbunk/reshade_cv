@@ -4,4 +4,4 @@
 #include <string>
 
 bool tryreadmemory(std::string contextstr, std::string &returnederrstr, HANDLE hProcess,
-				void *readfromherememloc, LPVOID returnwriteintobuf, SIZE_T bytes2read, SIZE_T *bytesread);
+				const void *readfromherememloc, LPVOID returnwriteintobuf, SIZE_T bytes2read, SIZE_T *bytesread);

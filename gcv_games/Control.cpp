@@ -2,31 +2,21 @@
 #include "Control.h"
 #include "gcv_utils/memread.h"
 
-std::string GameControl::gamename_verbose() const {
-	return "Control_DX11"; // tested for this build
+bool GameControl::can_interpret_depth_buffer() const {
+	return true;
+}
+float GameControl::convert_to_physical_distance_depth_u64(uint64_t depthval) const {
+	const double normalizeddepth = static_cast<double>(depthval) / 1073741824.0; // 30 bits depth
+	return 0.00310475 / (1.0 - normalizeddepth * 1.00787427);
 }
 
-bool GameControl::init_in_game() {
-	if (renderer_dll != 0)
-		return true;
-	renderer_dll = GetModuleHandle(TEXT("renderer_rmdwin7_f.dll"));
-	return renderer_dll != 0;
-}
+std::string GameControlDX11::gamename_verbose() const { return "Control_DX11"; }
+std::string GameControlDX12::gamename_verbose() const { return "Control_DX12"; }
 
-uint8_t GameControl::get_camera_matrix(CamMatrix &rcam, std::string &errstr) {
-	if (!init_in_game()) return CamMatrix_Uninitialized;
-	UINT_PTR dll4cambaseaddr = (UINT_PTR)renderer_dll;
-	SIZE_T nbytesread = 0;
-	const uint64_t camloc = 0x1266D60ull;
-	float cambuf[3];
-	if (!tryreadmemory(gamename_verbose() + std::string("_3x4cam"),
-		errstr, mygame_handle_exe, (void *)(dll4cambaseaddr + camloc),
-		reinterpret_cast<LPVOID>(cambuf), 3 * sizeof(float), &nbytesread)) {
-		return CamMatrix_Uninitialized;
-	}
-	rcam.make_zero();
-	rcam.GetPosition().x = cambuf[0];
-	rcam.GetPosition().y = cambuf[1];
-	rcam.GetPosition().z = cambuf[2];
-	return CamMatrix_PositionGood;
-}
+std::string GameControlDX11::camera_dll_name() const { return "renderer_rmdwin7_f.dll"; }
+uint64_t GameControlDX11::camera_dll_mem_start() const { return 0x1266D30ull; } // also at 0x126FC80
+GameCamDLLMatrixType GameControlDX11::camera_dll_matrix_format() const { return GameCamDLLMatrix_4x4; }
+
+std::string GameControlDX12::camera_dll_name() const { return "renderer_rmdwin10_f.dll"; }
+uint64_t GameControlDX12::camera_dll_mem_start() const { return 0x1291110ull; } // also at 0x129A630
+GameCamDLLMatrixType GameControlDX12::camera_dll_matrix_format() const { return GameCamDLLMatrix_4x4; }

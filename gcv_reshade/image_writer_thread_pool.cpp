@@ -119,6 +119,10 @@ bool image_writer_thread_pool::init_in_game() {
 	if (!init_on_startup()) return false;
 	return game->init_in_game();
 }
+bool image_writer_thread_pool::game_knows_depthbuffer() {
+	if (!init_on_startup()) return false;
+	return game->can_interpret_depth_buffer();
+}
 std::string image_writer_thread_pool::gamename_simpler() {
 	if (!init_on_startup()) return "";
 	return game->gamename_simpler();
@@ -128,7 +132,14 @@ std::string image_writer_thread_pool::gamename_verbose() {
 	return game->gamename_verbose();
 }
 uint8_t image_writer_thread_pool::get_camera_matrix(CamMatrix &rcam, std::string &errstr) {
-	if (!init_on_startup() || !init_in_game()) return CamMatrix_Uninitialized;
+	if (!init_on_startup()) {
+		errstr += std::string("failed to init/recognize game ") + lowercasenameofcurrentprocessexe();
+		return CamMatrix_Uninitialized;
+	}
+	if (!init_in_game()) {
+		errstr += "failed to init in game?";
+		return CamMatrix_Uninitialized;
+	}
 	return game->get_camera_matrix(rcam, errstr);
 }
 

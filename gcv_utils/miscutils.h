@@ -5,6 +5,7 @@
 #include <sstream>
 
 std::string string_from_wstring(const std::wstring &input);
+std::wstring wstring_from_string(const std::string& str);
 std::string string_from_TCHARptr(TCHAR *wcharptr);
 std::string string_lowercase(const std::string &input);
 std::string pathofcurrentprocessexe();
@@ -16,18 +17,11 @@ std::string get_datestr_yyyy_mm_dd();
 // return error string if test failed; empty string means ok
 std::string run_utils_tests();
 
-template<typename T>
-std::string print_lots_of_items(T const*const input, size_t nelems, size_t batchsize) {
-	if (input == nullptr || nelems == 0) return "";
-	std::stringstream strstr;
-	for (size_t ii = 0; ii <= (nelems / batchsize); ++ii) {
-		if (ii > 0) strstr << "; ";
-		strstr << "[";
-		for (size_t jj = ii * batchsize; jj < std::min((ii + 1) * batchsize, nelems); ++jj) {
-			if (jj > 0) strstr << ", ";
-			strstr << input[jj];
-		}
-		strstr << "]";
-	}
-	return strstr.str();
+// https://stackoverflow.com/questions/4915462/how-should-i-do-floating-point-comparison
+template<typename FT>
+bool floats_nearly_equal(FT a, FT b, FT epsmult = FT(128)) {
+	if (a == b) return true;
+	const FT diff = std::abs(a - b);
+	const FT norm = std::min((std::abs(a) + std::abs(b)), std::numeric_limits<FT>::max());
+	return diff < std::max(std::numeric_limits<FT>::min(), (epsmult * std::numeric_limits<FT>::epsilon()) * norm);
 }

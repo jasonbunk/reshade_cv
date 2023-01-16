@@ -2,7 +2,7 @@
 #include "gcv_utils/memread.h"
 
 bool tryreadmemory(std::string contextstr, std::string &returnederrstr, HANDLE hProcess,
-			void *readfromherememloc, LPVOID returnwriteintobuf, SIZE_T bytes2read, SIZE_T *bytesread)
+			const void *readfromherememloc, LPVOID returnwriteintobuf, SIZE_T bytes2read, SIZE_T *bytesread)
 {
 	if (hProcess == 0) {
 		returnederrstr = contextstr + std::string("tryreadmemory: hProcess == 0");
@@ -20,7 +20,7 @@ bool tryreadmemory(std::string contextstr, std::string &returnederrstr, HANDLE h
 		returnederrstr = contextstr + std::string("tryreadmemory: bytesread == null");
 		return false;
 	}
-	if (ReadProcessMemory(hProcess, (void *)(readfromherememloc), returnwriteintobuf, bytes2read, bytesread)) {
+	if (ReadProcessMemory(hProcess, (LPCVOID)(readfromherememloc), returnwriteintobuf, bytes2read, bytesread)) {
 		if (*bytesread == bytes2read) {
 			return true;
 		}

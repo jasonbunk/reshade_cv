@@ -39,16 +39,16 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup>
-    <OutDir>..\build\bin\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>..\build\intermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)build\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)build\intermediate_gcv\$(Platform)\$(Configuration)\</IntDir>
     <TargetName>cv_captures</TargetName>
     <TargetExt>.addon</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>..;..\3rdparty;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)3rdparty;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>..;..\3rdparty;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)3rdparty;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -56,7 +56,7 @@
       <SDLCheck>true</SDLCheck>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_DEPRECATE;NOMINMAX;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\reshade-5.5.2\include;..\..\reshade-5.5.2\deps\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)..\reshade-5.6.0\include;$(SolutionDir)..\reshade-5.6.0\deps\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <DisableSpecificWarnings>4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
@@ -73,7 +73,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_DEPRECATE;NOMINMAX;ImTextureID=ImU64;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\reshade-5.5.2\include;..\..\reshade-5.5.2\deps\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)..\reshade-5.6.0\include;$(SolutionDir)..\reshade-5.6.0\deps\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <DisableSpecificWarnings>4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
@@ -100,10 +100,13 @@
     <ClCompile Include="..\gcv_games\Cyberpunk2077.cpp" />
     <ClCompile Include="..\gcv_games\game_interface.cpp" />
     <ClCompile Include="..\gcv_games\game_interface_factory.cpp" />
+    <ClCompile Include="..\gcv_games\game_with_camera_data_in_one_dll.cpp" />
+    <ClCompile Include="..\gcv_games\HorizonZeroDawn.cpp" />
     <ClCompile Include="..\gcv_utils\geometry.cpp" />
     <ClCompile Include="..\gcv_utils\image_queue_entry.cpp" />
     <ClCompile Include="..\gcv_utils\memread.cpp" />
     <ClCompile Include="..\gcv_utils\miscutils.cpp" />
+    <ClCompile Include="..\gcv_utils\scan_for_camera_matrix.cpp" />
     <ClCompile Include="..\gcv_utils\simple_packed_buf.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="copy_texture_into_packedbuf.cpp" />
@@ -135,10 +138,13 @@
     <ClInclude Include="..\gcv_games\game_interface_factory.h" />
     <ClInclude Include="..\gcv_games\game_interface.h" />
     <ClInclude Include="..\gcv_games\game_interface_factory_registration.h" />
+    <ClInclude Include="..\gcv_games\game_with_camera_data_in_one_dll.h" />
+    <ClInclude Include="..\gcv_games\HorizonZeroDawn.h" />
     <ClInclude Include="..\gcv_utils\geometry.h" />
     <ClInclude Include="..\gcv_utils\image_queue_entry.h" />
     <ClInclude Include="..\gcv_utils\memread.h" />
     <ClInclude Include="..\gcv_utils\miscutils.h" />
+    <ClInclude Include="..\gcv_utils\scan_for_camera_matrix.h" />
     <ClInclude Include="..\gcv_utils\simple_packed_buf.h" />
     <ClInclude Include="generic_depth_struct.h" />
     <ClInclude Include="image_writer_thread_pool.h" />

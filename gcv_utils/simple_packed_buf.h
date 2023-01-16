@@ -8,6 +8,7 @@ enum BufPixelFormat {
 	BUF_PIX_FMT_RGB24,
 	BUF_PIX_FMT_RGBA,
 	BUF_PIX_FMT_GRAYF32,
+	BUF_PIX_FMT_GRAYU32,
 };
 
 // row accessors assume data is row-major

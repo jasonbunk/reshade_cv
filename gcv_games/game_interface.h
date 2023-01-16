@@ -33,7 +33,10 @@ public:
 	// return a camera matrix status from above enum (can return multiple flags)
 	virtual uint8_t get_camera_matrix(CamMatrix &rcam, std::string &errstr) = 0;
 
-	// typically, convert from integer depth to floating-point distance
-	virtual bool can_interpret_depth_buffer() { return false; }
-	virtual float convert_to_physical_distance_depth_u32(uint32_t depthval) { return 0.0f; }
+	// convert from integer depth to floating-point distance
+	virtual bool can_interpret_depth_buffer() const { return false; }
+	virtual float convert_to_physical_distance_depth_u64(uint64_t depthval) const { return 0.0f; }
+
+	// memory scans
+	virtual bool scan_all_memory_for_scripted_cam_matrix(std::string& errstr) { errstr += "not implemented"; return false; }
 };

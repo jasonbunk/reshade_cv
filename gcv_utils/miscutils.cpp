@@ -13,6 +13,14 @@ std::string string_from_wstring(const std::wstring &wstr) {
 	WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), &strTo[0], size_needed, NULL, NULL);
 	return strTo;
 }
+std::wstring wstring_from_string(const std::string& str)
+{
+	if (str.empty()) return std::wstring();
+	int size_needed = MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), NULL, 0);
+	std::wstring wstrTo(size_needed, 0);
+	MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), &wstrTo[0], size_needed);
+	return wstrTo;
+}
 
 std::string string_from_TCHARptr(TCHAR *wcharptr) {
 	if (sizeof(TCHAR) == 1) {
@@ -59,25 +67,60 @@ std::string get_datestr_yyyy_mm_dd() {
 }
 
 #define hertsttbufsz 1023
+#define RETURNFAILST(xx) return std::string("failed: ") + xx
+
+template<typename FT>
+bool vec3_near(const Vec3T<FT>& aa, FT bx, FT by, FT bz, FT threshold) {
+	return std::abs(aa.x - bx) < threshold
+		&& std::abs(aa.y - by) < threshold
+		&& std::abs(aa.z - bz) < threshold;
+}
+template<typename FT>
+bool vec3_near(const Vec3refT<FT>& aa, FT bx, FT by, FT bz, FT threshold) {
+	return std::abs(aa.x - bx) < threshold
+		&& std::abs(aa.y - by) < threshold
+		&& std::abs(aa.z - bz) < threshold;
+}
+
+#define CHECKVECNEAR(pstr, refvec, expectx, expecty, expectz) if(!vec3_near<double>(refvec, expectx, expecty, expectz, 0.00001)){ RETURNFAILST(pstr)+std::string(": ")+refvec.to_string()+std::string(" versus ")+Vec3T<double>(expectx, expecty, expectz).to_string(); }
 
 std::string run_utils_tests() {
 	//std::vector<std::pair<std::string, std::string> > teststrings = { {"/hello/x", "x"}, {"/hello/", ""}, {"/hello", "hello"}, {"/", ""} };
-	if (std::string().length() > 0) return "A: empty string not empty!?";
-	if (std::string("").length() > 0) return "B: empty string not empty!?";
-	if (basename_from_filepath("/hello/x").compare("x")) return "basename_from_filepath";
+	if (std::string().length() > 0) RETURNFAILST("A: empty string not empty!?");
+	if (std::string("").length() > 0) RETURNFAILST("B: empty string not empty!?");
+	if (basename_from_filepath("/hello/x").compare("x")) RETURNFAILST("basename_from_filepath");
 	char tmpbuf[hertsttbufsz];
 
 	memset(tmpbuf, 0, hertsttbufsz);
 	Vec4().serialize_into(tmpbuf, hertsttbufsz - 1, true);
-	if (std::string(tmpbuf).compare("[-9.0000000,-9.0000000,-9.0000000,-9.0000000]")) return std::string("Vec4().serialize_into(...,true) -- <") + std::string(tmpbuf) + std::string(">");
+	if (std::string(tmpbuf).compare("[-9.0000000,-9.0000000,-9.0000000,-9.0000000]")) RETURNFAILST("Vec4().serialize_into(...,true) -- <") + std::string(tmpbuf) + std::string(">");
 
 	memset(tmpbuf, 0, hertsttbufsz);
 	Vec4().serialize_into(tmpbuf, hertsttbufsz - 1, false);
-	if (std::string(tmpbuf).compare("-9.0000000,-9.0000000,-9.0000000,-9.0000000")) return std::string("Vec4().serialize_into(...,false) -- <") + std::string(tmpbuf) + std::string(">");
+	if (std::string(tmpbuf).compare("-9.0000000,-9.0000000,-9.0000000,-9.0000000")) RETURNFAILST("Vec4().serialize_into(...,false) -- <") + std::string(tmpbuf) + std::string(">");
 
 	memset(tmpbuf, 0, hertsttbufsz);
 	CamMatrix().serialize_into(tmpbuf, hertsttbufsz - 1);
-	if (std::string(tmpbuf).compare("[-9.0000000,-9.0000000,-9.0000000,-9.0000000,-9.0000000,-9.0000000,-9.0000000,-9.0000000,-9.0000000,-9.0000000,-9.0000000,-9.0000000]")) return std::string("Vec4().serialize_into(...,false) -- <") + std::string(tmpbuf) + std::string(">");
+	if (std::string(tmpbuf).compare("[-9.0000000,-9.0000000,-9.0000000,-9.0000000,-9.0000000,-9.0000000,-9.0000000,-9.0000000,-9.0000000,-9.0000000,-9.0000000,-9.0000000]")) RETURNFAILST("Vec4().serialize_into(...,false) -- <") + std::string(tmpbuf) + std::string(">");
 
+	{const auto testcross = Vec3T<double>( 5, 3, 2).cross(Vec3T<double>( 11, 7, 13)); CHECKVECNEAR("Vec3::cross test1", testcross, 25.0,-43.0, 2.0)}
+	{const auto testcross = Vec3T<double>(-5, 3,-2).cross(Vec3T<double>( 11,-7, 13)); CHECKVECNEAR("Vec3::cross test2", testcross, 25.0, 43.0, 2.0)}
+	{const auto testcross = Vec3T<double>(-5, 3,-2).cross(Vec3T<double>( 11,-7,-13)); CHECKVECNEAR("Vec3::cross test3", testcross,-53.0,-87.0, 2.0)}
+	{const auto testcross = Vec3T<double>(-5, 3,-2).cross(Vec3T<double>(-11,-7,-13)); CHECKVECNEAR("Vec4::cross test4", testcross,-53.0,-43.0,68.0)}
+
+	const auto testcampos = Vec3T<double>(5, 2, 3);
+	{
+		const auto testlookdir = Vec3T<double>(-0.398519, 0.475435, -0.784311); CamMatrixT<double> testlookcam; testlookcam.build_from_pos_and_lookdir(testcampos, testlookdir);
+		CHECKVECNEAR("lookcam1_col0", testlookcam.GetCol(0), 0.766376, 0.642392, 0.0) CHECKVECNEAR("lookcam1_col1", testlookcam.GetCol(1), testlookdir.x, testlookdir.y, testlookdir.z) CHECKVECNEAR("lookcam1_col2", testlookcam.GetCol(2), -0.503835, 0.601077, 0.620368) CHECKVECNEAR("lookcam1_col3", testlookcam.GetCol(3), 5.0, 2.0, 3.0)
+	} {
+		const auto testlookdir = Vec3T<double>(0.422797, -0.901974, -0.087669); CamMatrixT<double> testlookcam; testlookcam.build_from_pos_and_lookdir(testcampos, testlookdir);
+		CHECKVECNEAR("lookcam2_col0", testlookcam.GetCol(0), -0.905460, -0.424431, 0.0) CHECKVECNEAR("lookcam2_col1", testlookcam.GetCol(1), testlookdir.x, testlookdir.y, testlookdir.z) CHECKVECNEAR("lookcam2_col2", testlookcam.GetCol(2), 0.037209, -0.079381, 0.996150) CHECKVECNEAR("lookcam2_col3", testlookcam.GetCol(3), 5.0, 2.0, 3.0)
+	} {
+		const auto testlookdir = Vec3T<double>(0.758219, 0.605454, 0.241927); CamMatrixT<double> testlookcam; testlookcam.build_from_pos_and_lookdir(testcampos, testlookdir);
+		CHECKVECNEAR("lookcam3_col0", testlookcam.GetCol(0), 0.623990, -0.781432, 0.0) CHECKVECNEAR("lookcam3_col1", testlookcam.GetCol(1), testlookdir.x, testlookdir.y, testlookdir.z) CHECKVECNEAR("lookcam3_col2", testlookcam.GetCol(2), -0.189050, -0.150960, 0.970294) CHECKVECNEAR("lookcam3_col3", testlookcam.GetCol(3), 5.0, 2.0, 3.0)
+	} {
+		const auto testlookdir = Vec3T<double>(-0.441620, -0.853757, 0.275811); CamMatrixT<double> testlookcam; testlookcam.build_from_pos_and_lookdir(testcampos, testlookdir);
+		CHECKVECNEAR("lookcam4_col0", testlookcam.GetCol(0), -0.888209, 0.459441, 0.0) CHECKVECNEAR("lookcam4_col1", testlookcam.GetCol(1), testlookdir.x, testlookdir.y, testlookdir.z) CHECKVECNEAR("lookcam4_col2", testlookcam.GetCol(2), 0.126719, 0.244978, 0.961212) CHECKVECNEAR("lookcam4_col3", testlookcam.GetCol(3), 5.0, 2.0, 3.0)
+	}
 	return std::string("ok");
 }

@@ -16,6 +16,13 @@ void unpack_r5g6b5(uint16_t data, uint8_t rgb[3])
 	rgb[2] = static_cast<uint8_t>((temp / 32 + temp) / 32);
 }
 
+#define TENBITS_MASK ((1u << 10u) - 1u)
+void r10g10b10a2_to_r8g8b8(uint32_t data, uint8_t rgb[3]) {
+	rgb[0] = static_cast<uint8_t>((data & TENBITS_MASK) >> 2u);
+	rgb[1] = static_cast<uint8_t>((data & (TENBITS_MASK << 10u)) >> 12u);
+	rgb[2] = static_cast<uint8_t>((data & (TENBITS_MASK << 20u)) >> 22u);
+}
+
 void unpack_bc1_value(const uint8_t color_0[3], const uint8_t color_1[3], uint32_t color_index, uint8_t result[4], bool not_degenerate)
 {
 	switch (color_index)
