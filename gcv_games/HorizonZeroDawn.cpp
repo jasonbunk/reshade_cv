@@ -15,3 +15,22 @@ float GameHorizonZeroDawn::convert_to_physical_distance_depth_u64(uint64_t depth
 	const double normalizeddepth = static_cast<double>(depthval) / 1073741824.0; // 30 bits depth
 	return 0.00313259 / (1.0 - normalizeddepth * 1.00787352);
 }
+
+uint8_t GameHorizonZeroDawn::get_camera_matrix(CamMatrix& rcam, std::string& errstr) {
+	if (!init_in_game()) return CamMatrix_Uninitialized;
+	UINT_PTR dll4cambaseaddr = (UINT_PTR)camera_dll;
+	SIZE_T nbytesread = 0;
+	const uint64_t camlocstart = camera_dll_mem_start();
+	float readbuf[25];
+	Vec3 campos, camdir;
+	if (tryreadmemory(gamename_verbose() + std::string("_3x4cam"), errstr, mygame_handle_exe,
+		(void*)(dll4cambaseaddr + camlocstart), reinterpret_cast<LPVOID>(readbuf), 100, &nbytesread)) {
+		for (int flit = 0; flit < 3; ++flit) {
+			campos.at(flit) = readbuf[flit * 4];
+			camdir.at(flit) = readbuf[(flit + 4) * 4];
+		}
+		rcam.build_from_pos_and_lookdir(campos, camdir);
+		return CamMatrix_AllGood;
+	}
+	return CamMatrix_Uninitialized;
+}

@@ -11,6 +11,8 @@ public:
 	virtual std::string gamename_simpler() const override { return "HorizonZeroDawn"; }
 	virtual std::string gamename_verbose() const override;
 
+	virtual uint8_t get_camera_matrix(CamMatrix& rcam, std::string& errstr) override;
+
 	virtual bool can_interpret_depth_buffer() const override;
 	virtual float convert_to_physical_distance_depth_u64(uint64_t depthval) const override;
 };
