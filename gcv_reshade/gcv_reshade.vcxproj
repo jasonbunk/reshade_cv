@@ -102,6 +102,7 @@
     <ClCompile Include="..\gcv_games\game_interface_factory.cpp" />
     <ClCompile Include="..\gcv_games\game_with_camera_data_in_one_dll.cpp" />
     <ClCompile Include="..\gcv_games\HorizonZeroDawn.cpp" />
+    <ClCompile Include="..\gcv_games\Witcher3.cpp" />
     <ClCompile Include="..\gcv_utils\geometry.cpp" />
     <ClCompile Include="..\gcv_utils\image_queue_entry.cpp" />
     <ClCompile Include="..\gcv_utils\memread.cpp" />
@@ -140,6 +141,7 @@
     <ClInclude Include="..\gcv_games\game_interface_factory_registration.h" />
     <ClInclude Include="..\gcv_games\game_with_camera_data_in_one_dll.h" />
     <ClInclude Include="..\gcv_games\HorizonZeroDawn.h" />
+    <ClInclude Include="..\gcv_games\Witcher3.h" />
     <ClInclude Include="..\gcv_utils\geometry.h" />
     <ClInclude Include="..\gcv_utils\image_queue_entry.h" />
     <ClInclude Include="..\gcv_utils\memread.h" />

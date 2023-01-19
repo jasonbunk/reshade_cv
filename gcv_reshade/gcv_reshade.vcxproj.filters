@@ -76,6 +76,9 @@
     <ClCompile Include="..\gcv_games\HorizonZeroDawn.cpp">
       <Filter>gcv_games</Filter>
     </ClCompile>
+    <ClCompile Include="..\gcv_games\Witcher3.cpp">
+      <Filter>gcv_games</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\3rdparty\concurrentqueue.h">
@@ -184,6 +187,9 @@
       <Filter>gcv_games</Filter>
     </ClInclude>
     <ClInclude Include="..\gcv_games\HorizonZeroDawn.h">
+      <Filter>gcv_games</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gcv_games\Witcher3.h">
       <Filter>gcv_games</Filter>
     </ClInclude>
   </ItemGroup>

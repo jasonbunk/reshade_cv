@@ -1,0 +1,13 @@
+@@ -1532,32 +1532,74 @@
+ emL : bool;%0D%0A%09%0D%0A
++    private var cambuf : array%3Cfloat%3E;%0D%0A%0D%0A
+ %09private saved v
+@@ -19900,27 +19900,61 @@
+ .Update();%0D%0A
+-%09%09%09
++%0D%0A        MyCamInfoModUpdateCamBuf();
+ %0D%0A%09%09%0D%0A%09%09if(d
+@@ -61888,24 +61888,1280 @@
+ %7D%0D%0A%09%09%7D%0D%0A%09%7D%0D%0A
++    %0D%0A    private function MyCamInfoModUpdateCamBuf()%0D%0A    %7B%0D%0A        var i : int;%0D%0A        var camfov : float;%0D%0A        var ph1 : float;%0D%0A        var ph2 : float;%0D%0A        var camvec : Vector;%0D%0A        if ( cambuf.Size() %3C= 1 )%0D%0A        %7B%0D%0A            cambuf.Resize(18);%0D%0A            cambuf%5B0%5D = 0.0000000101546158;%0D%0A            cambuf%5B1%5D = 0.0606187284;%0D%0A            for ( i = 2; i %3C 18; i+=1 )%0D%0A            %7B%0D%0A                cambuf%5Bi%5D = 1.0;%0D%0A            %7D%0D%0A        %7D%0D%0A%09%09camvec = theCamera.GetCameraRight();%0D%0A%09%09cambuf%5B 3%5D = camvec.X;%0D%0A%09%09cambuf%5B 7%5D = camvec.Y;%0D%0A%09%09cambuf%5B11%5D = camvec.Z;%0D%0A%0D%0A%09%09camvec = theCamera.GetCameraForward();%0D%0A%09%09cambuf%5B 4%5D = camvec.X;%0D%0A%09%09cambuf%5B 8%5D = camvec.Y;%0D%0A%09%09cambuf%5B12%5D = camvec.Z;%0D%0A%0D%0A%09%09camvec = theCamera.GetCameraUp();%0D%0A%09%09cambuf%5B 5%5D = camvec.X;%0D%0A%09%09cambuf%5B 9%5D = camvec.Y;%0D%0A%09%09cambuf%5B13%5D = camvec.Z;%0D%0A%0D%0A%09%09camvec = theCamera.GetCameraPosition();%0D%0A%09%09cambuf%5B 6%5D = camvec.X;%0D%0A%09%09cambuf%5B10%5D = camvec.Y;%0D%0A%09%09cambuf%5B14%5D = camvec.Z;%0D%0A%0D%0A%09%09ph1 = 0.0;%0D%0A%09%09ph2 = 0.0;%0D%0A%09%09cambuf%5B2%5D += 1.0;%0D%0A%09%09cambuf%5B15%5D = theCamera.GetFov();%0D%0A%0D%0A%09%09for ( i = 2; i %3C= 15; i+=1 )%0D%0A%09%09%7B%0D%0A%09%09%09ph1 += cambuf%5Bi%5D;%0D%0A%09%09%09if ( i %25 2 == 0 )%0D%0A%09%09%09%7B%0D%0A%09%09%09%09ph2 += cambuf%5Bi%5D;%0D%0A%09%09%09%7D%0D%0A%09%09%09else%0D%0A%09%09%09%7B%0D%0A%09%09%09%09ph2 -= cambuf%5Bi%5D;%0D%0A%09%09%09%7D%0D%0A%09%09%7D%0D%0A%09%09cambuf%5B16%5D = ph1;%0D%0A%09%09cambuf%5B17%5D = ph2;%0D%0A    %7D%0D%0A
+ %09%0D%0A%09import f
