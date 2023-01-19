@@ -2,11 +2,14 @@
 #include "Cyberpunk2077.h"
 #include "gcv_utils/memread.h"
 
+// For this game, scripting is made easy by Cyber Engine Tweaks,
+// so I provide a simple lua script which stashes camera coordinates into a double[] buffer.
+
 std::string GameCyberpunk2077::gamename_verbose() const { return "Cyberpunk2077_patch161"; } // tested for this build
 
 std::string GameCyberpunk2077::camera_dll_name() const { return ""; } // no dll name, it's available in the exe memory space
 uint64_t GameCyberpunk2077::camera_dll_mem_start() const { return 0; }
-GameCamDLLMatrixType GameCyberpunk2077::camera_dll_matrix_format() const { return GameCamDLLMatrix_allmemscanrequiredtofindscriptedtransform; }
+GameCamDLLMatrixType GameCyberpunk2077::camera_dll_matrix_format() const { return GameCamDLLMatrix_allmemscanrequiredtofindscriptedtransform_buf_double; }
 
 bool GameCyberpunk2077::can_interpret_depth_buffer() const {
 	return true;

@@ -148,6 +148,10 @@ bool image_writer_thread_pool::save_texture_image_needing_resource_barrier_copy(
 	reshade::api::command_queue *queue, reshade::api::resource tex,
 	bool isdepth)
 {
+	if (tex == 0) {
+		reshade::log_message(1, std::string(std::string("depth texture null: failed to save ")+base_filename).c_str());
+		return false;
+	}
 	if (num_threads() == 0) {
 		change_num_threads(1);
 	}

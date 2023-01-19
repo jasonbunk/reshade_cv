@@ -60,9 +60,10 @@ std::string lowercasenameofcurrentprocessexe() {
 
 std::string get_datestr_yyyy_mm_dd() {
 	std::time_t currtime = std::time(nullptr);
-	std::tm *const pTInfo = std::localtime(&currtime);
-	char tmpbuf[16];
-	sprintf(tmpbuf, "%d-%02d-%02d", 1900 + pTInfo->tm_year, pTInfo->tm_mon, pTInfo->tm_wday);
+	std::tm gottime;
+	localtime_s(&gottime, &currtime);
+	char tmpbuf[20];
+	sprintf_s(tmpbuf, 20, "%d-%02d-%02d", 1900 + gottime.tm_year, 1 + gottime.tm_mon, gottime.tm_mday);
 	return std::string(tmpbuf);
 }
 

@@ -6,6 +6,13 @@ Also for some games, the depth buffer can be converted from uint32 to a physical
 
 This 3D data can be used to generate ground truth for 3D DNNs, for example SLAM datasets.
 
+### TODOs
+* Documentation, tutorial
+* Camera data from more games
+* Point cloud tool: needs calibrated depth map; Crysis currently works, maybe Horizon Zero Dawn. Cyberpunk depth buffer does a piecewise approximation to the logarithm which is tricky to invert with full precision
+* Tool to move camera/player to systematically scan large areas to create a synthetic dataset for "Block-NeRF"/"Mega-NeRF"
+
+### Sample data
 Sample NERFs computed using the camera matrix extracted from the game & saved as transforms.json (no COLMAP since we have the ground truth!):
 
 #### Cyberpunk 2077

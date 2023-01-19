@@ -8,7 +8,8 @@ enum GameCamDLLMatrixType {
   GameCamDLLMatrix_4x4,
   GameCamDLLMatrix_pos_and_3x3rot,
   GameCamDLLMatrix_pos_and_4x3rot,
-  GameCamDLLMatrix_allmemscanrequiredtofindscriptedtransform,
+  GameCamDLLMatrix_allmemscanrequiredtofindscriptedtransform_buf_float,
+  GameCamDLLMatrix_allmemscanrequiredtofindscriptedtransform_buf_double,
 };
 
 class GameWithCameraDataInOneDLL : public GameInterface {
@@ -22,6 +23,10 @@ protected:
   virtual uint64_t camera_dll_mem_start() const = 0;
   virtual uint64_t camera_dll_second_memloc() const { return 0; } // only used if rotation matrix and position are in different locations
   virtual GameCamDLLMatrixType camera_dll_matrix_format() const = 0;
+
+  template<typename FT>
+  bool read_scripted_cambuf_and_copytomatrix(CamMatrix& rcam, std::string& errstr);
+
 public:
   virtual bool init_in_game() override;
   virtual uint8_t get_camera_matrix(CamMatrix& rcam, std::string& errstr) override;
