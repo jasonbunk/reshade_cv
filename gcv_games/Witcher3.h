@@ -12,6 +12,7 @@ public:
 	virtual std::string gamename_verbose() const override;
 
 	virtual bool can_interpret_depth_buffer() const override;
+	virtual float convert_to_physical_distance_depth_u64(uint64_t depthval) const override;
 };
 
 REGISTER_GAME_INTERFACE(GameWitcher3, 0, "witcher3.exe");

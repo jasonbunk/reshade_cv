@@ -1,6 +1,6 @@
 // Copyright (C) 2022 Jason Bunk
 #include "Cyberpunk2077.h"
-#include "gcv_utils/memread.h"
+#include "gcv_utils/depth_utils.h"
 
 // For this game, scripting is made easy by Cyber Engine Tweaks,
 // so I provide a simple lua script which stashes camera coordinates into a double[] buffer.
@@ -15,7 +15,9 @@ bool GameCyberpunk2077::can_interpret_depth_buffer() const {
 	return true;
 }
 float GameCyberpunk2077::convert_to_physical_distance_depth_u64(uint64_t depthval) const {
-  const double normalizeddepth = static_cast<double>(depthval) / 1073741824.0; // 30 bits depth
-	return exp(84.1418 - 88.79965 * normalizeddepth); // the numbers, what do they mean?
-  // warning: cyberpunk uses a fast approximate log, so this isn't very precise
+  const double normalizeddepth = static_cast<double>(depthval) / 4294967296.0;
+  // This game has a logarithmic depth buffer with unknown constant(s).
+  // These numbers were found by a curve fit, so are approximate,
+  // but should be about 99.5% accurate for depths from centimeters to kilometers
+	return 1.28410601 / (0.000080821547 + exp_fast_approx(355.3397906 * normalizeddepth - 83.92854443));
 }
