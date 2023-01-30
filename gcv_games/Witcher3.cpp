@@ -19,8 +19,8 @@ scriptedcam_checkbuf_funptr GameWitcher3::get_scriptedcambuf_checkfun() const {
 uint64_t GameWitcher3::get_scriptedcambuf_sizebytes() const {
 	return template_scriptedcambuf_sizebytes<float, 13, 1>();
 }
-bool GameWitcher3::copy_scriptedcambuf_to_matrix(uint8_t* buf, uint64_t buflen, CamMatrix& rcam, std::string& errstr) const {
-	return template_copy_scriptedcambuf_extrinsic_cam2world_and_fov<float, 13, 1>(buf, buflen, rcam, errstr);
+bool GameWitcher3::copy_scriptedcambuf_to_matrix(uint8_t* buf, uint64_t buflen, CamMatrixData& rcam, std::string& errstr) const {
+	return template_copy_scriptedcambuf_extrinsic_cam2world_and_fov<float, 13, 1>(buf, buflen, rcam, true, errstr);
 }
 
 bool GameWitcher3::can_interpret_depth_buffer() const {

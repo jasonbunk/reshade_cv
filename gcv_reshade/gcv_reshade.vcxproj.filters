@@ -82,6 +82,12 @@
     <ClCompile Include="..\gcv_utils\depth_utils.cpp">
       <Filter>gcv_utils</Filter>
     </ClCompile>
+    <ClCompile Include="..\gcv_games\ResidentEvils.cpp">
+      <Filter>gcv_games</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gcv_utils\camera_data_struct.cpp">
+      <Filter>gcv_utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\3rdparty\concurrentqueue.h">
@@ -198,7 +204,13 @@
     <ClInclude Include="..\gcv_utils\depth_utils.h">
       <Filter>gcv_utils</Filter>
     </ClInclude>
+    <ClInclude Include="..\gcv_games\ResidentEvils.h">
+      <Filter>gcv_games</Filter>
+    </ClInclude>
     <ClInclude Include="..\gcv_utils\scripted_cam_buf_templates.h">
+      <Filter>gcv_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gcv_utils\camera_data_struct.h">
       <Filter>gcv_utils</Filter>
     </ClInclude>
   </ItemGroup>

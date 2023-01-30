@@ -28,7 +28,7 @@ struct Vec4refT {
 	Vec4refT(FT &x_, FT &y_, FT &z_, FT &t_) : x(x_), y(y_), z(z_), t(t_) {}
 	FT& at(int which) { if (which <= 0) return x; if (which >= 3) return t; return which == 1 ? y : z; }
 	FT atc(int which) const { if (which <= 0) return x; if (which >= 3) return t; return which == 1 ? y : z; }
-	int serialize_into(char *rbuf, int buflen, bool wrapbrackets);
+	int serialize_into(char *rbuf, int buflen, bool wrapbrackets) const;
 	std::string to_string(bool wrap_brackets) const;
 	//Vec4T<FT> clone() const { return Vec4T<FT>(x, y, z, t); }
 };
@@ -47,7 +47,6 @@ struct Vec3T {
 	Vec3T<FT> cross(const Vec3T<FT>& other) const;
 	Vec3T<FT> cross(const Vec3refT<FT>& other) const;
 	Vec3T<FT> cross(FT a, FT b, FT c) const;
-	int serialize_into(char* rbuf, int buflen, bool wrapbrackets);
 	std::string to_string(bool wrap_brackets = true) const;
 };
 
@@ -62,27 +61,27 @@ struct Vec4T {
 	FT& at(int i);
 	void normalize();
 	FT dot(const Vec4T<FT>& other) const;
-	int serialize_into(char* rbuf, int buflen, bool wrapbrackets);
+	int serialize_into(char* rbuf, int buflen, bool wrapbrackets) const;
 	std::string to_string(bool wrap_brackets) const;
 };
 
 template<typename FT>
 struct CamMatrixT {
 	FT arr3x4[12];
-	FT fov = -9999.0;
 	CamMatrixT();
 	CamMatrixT(const float* rawptr3x4);
 	CamMatrixT(const double* rawptr3x4);
 	Vec3refT<FT> GetCol(int i);
 	Vec4refT<FT> GetRow(int i);
+	Vec4T<FT> GetRowCopy(int i) const;
 	Vec3refT<FT> GetPosition() { return GetCol(3); }
 	FT& at(int i, int j);
 	FT atc(int i, int j) const;
 	void make_zero();
 	void build_from_pos_and_lookdir(const Vec3refT<FT>& pos, const Vec3refT<FT>& lookdir);
 	void build_from_pos_and_lookdir(Vec3T<FT> pos, Vec3T<FT> lookdir);
-	int serialize_into(char *rbuf, int buflen);
-	std::string serialize();
+	int serialize_into(char *rbuf, int buflen) const;
+	std::string serialize() const;
 };
 
 template<typename FT>

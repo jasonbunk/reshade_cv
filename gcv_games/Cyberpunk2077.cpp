@@ -18,8 +18,8 @@ scriptedcam_checkbuf_funptr GameCyberpunk2077::get_scriptedcambuf_checkfun() con
 uint64_t GameCyberpunk2077::get_scriptedcambuf_sizebytes() const {
 	return template_scriptedcambuf_sizebytes<double, 13, 1>();
 }
-bool GameCyberpunk2077::copy_scriptedcambuf_to_matrix(uint8_t* buf, uint64_t buflen, CamMatrix& rcam, std::string& errstr) const {
-	return template_copy_scriptedcambuf_extrinsic_cam2world_and_fov<double, 13, 1>(buf, buflen, rcam, errstr);
+bool GameCyberpunk2077::copy_scriptedcambuf_to_matrix(uint8_t* buf, uint64_t buflen, CamMatrixData& rcam, std::string& errstr) const {
+	return template_copy_scriptedcambuf_extrinsic_cam2world_and_fov<double, 13, 1>(buf, buflen, rcam, true, errstr);
 }
 
 bool GameCyberpunk2077::can_interpret_depth_buffer() const {

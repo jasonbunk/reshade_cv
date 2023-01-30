@@ -1,18 +1,10 @@
 #pragma once
 // Copyright (C) 2022 Jason Bunk
-#include "gcv_utils/geometry.h"
 #include "gcv_utils/simple_packed_buf.h"
 #include "game_interface_factory_registration.h"
+#include "gcv_utils/camera_data_struct.h"
 #include <Windows.h>
 #include <string>
-
-enum CamMatrixStatus {
-	CamMatrix_Uninitialized = 0,
-	CamMatrix_PositionGood = 1,
-	CamMatrix_RotationGood = 2,
-	CamMatrix_AllGood = 3,
-	CamMatrix_WIP = 4,
-};
 
 class GameInterface {
 protected:
@@ -31,7 +23,7 @@ public:
 	virtual bool init_in_game() = 0;
 
 	// return a camera matrix status from above enum (can return multiple flags)
-	virtual uint8_t get_camera_matrix(CamMatrix &rcam, std::string &errstr) = 0;
+	virtual bool get_camera_matrix(CamMatrixData &rcam, std::string &errstr) = 0;
 
 	// convert from integer depth to floating-point distance
 	virtual bool can_interpret_depth_buffer() const { return false; }

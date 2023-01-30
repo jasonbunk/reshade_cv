@@ -25,7 +25,7 @@ scriptedcam_checkbuf_funptr GameWithCameraDataInOneDLL::get_scriptedcambuf_check
 }
 
 
-bool GameWithCameraDataInOneDLL::read_scripted_cambuf_and_copy_to_matrix(CamMatrix& rcam, std::string& errstr) {
+bool GameWithCameraDataInOneDLL::read_scripted_cambuf_and_copy_to_matrix(CamMatrixData& rcam, std::string& errstr) {
   if (cam_matrix_mem_loc_saved == 0 && !scan_all_memory_for_scripted_cam_matrix(errstr)) return false;
   std::vector<uint8_t> copybuf(get_scriptedcambuf_sizebytes());
   SIZE_T nbytesread = 0;
@@ -42,23 +42,28 @@ bool GameWithCameraDataInOneDLL::read_scripted_cambuf_and_copy_to_matrix(CamMatr
 }
 
 
-uint8_t GameWithCameraDataInOneDLL::get_camera_matrix(CamMatrix& rcam, std::string& errstr) {
-  if (!init_in_game()) return CamMatrix_Uninitialized;
+bool GameWithCameraDataInOneDLL::get_camera_matrix(CamMatrixData& rcam, std::string& errstr) {
+  rcam.extrinsic_status = CamMatrix_Uninitialized;
+  if (!init_in_game()) return false;
   const GameCamDLLMatrixType mattype = camera_dll_matrix_format();
   if (mattype == GameCamDLLMatrix_allmemscanrequiredtofindscriptedcambuf) {
-    if(read_scripted_cambuf_and_copy_to_matrix(rcam, errstr)) return CamMatrix_AllGood;
-    return CamMatrix_Uninitialized;
+      if (read_scripted_cambuf_and_copy_to_matrix(rcam, errstr)) {
+          rcam.extrinsic_status = CamMatrix_AllGood;
+          return true;
+      }
+    return false;
   }
   SIZE_T nbytesread = 0;
   UINT_PTR dll4cambaseaddr = (UINT_PTR)camera_dll;
   const uint64_t camloc = camera_dll_mem_start();
   if (mattype == GameCamDLLMatrix_3x4) {
     if (tryreadmemory(gamename_verbose() + std::string("_3x4cam"), errstr, mygame_handle_exe,
-        (LPCVOID)(dll4cambaseaddr + camloc), reinterpret_cast<LPVOID>(rcam.arr3x4),
+        (LPCVOID)(dll4cambaseaddr + camloc), reinterpret_cast<LPVOID>(rcam.extrinsic_cam2world.arr3x4),
         12 * sizeof(float), &nbytesread)) {
-      return CamMatrix_AllGood;
+        rcam.extrinsic_status = CamMatrix_AllGood;
+        return true;
     } else {
-      return CamMatrix_Uninitialized;
+      return false;
     }
   }
   float cambuf[3];
@@ -66,19 +71,21 @@ uint8_t GameWithCameraDataInOneDLL::get_camera_matrix(CamMatrix& rcam, std::stri
     if (!tryreadmemory(gamename_verbose() + std::string("_4x4cam_col") + std::to_string(colidx),
         errstr, mygame_handle_exe, (LPCVOID)(dll4cambaseaddr + camloc + colidx * 4 * sizeof(float)),
         reinterpret_cast<LPVOID>(cambuf), 3 * sizeof(float), &nbytesread)) {
-      return CamMatrix_Uninitialized;
+      return false;
     }
     if (mattype == GameCamDLLMatrix_positiononly) {
-      rcam.GetPosition().x = cambuf[0];
-      rcam.GetPosition().y = cambuf[1];
-      rcam.GetPosition().z = cambuf[2];
-      return CamMatrix_PositionGood;
+      rcam.extrinsic_cam2world.GetPosition().x = cambuf[0];
+      rcam.extrinsic_cam2world.GetPosition().y = cambuf[1];
+      rcam.extrinsic_cam2world.GetPosition().z = cambuf[2];
+      rcam.extrinsic_status = CamMatrix_PositionGood;
+      return true;
     }
-    rcam.GetCol(colidx).x = cambuf[0];
-    rcam.GetCol(colidx).y = cambuf[1];
-    rcam.GetCol(colidx).z = cambuf[2];
+    rcam.extrinsic_cam2world.GetCol(colidx).x = cambuf[0];
+    rcam.extrinsic_cam2world.GetCol(colidx).y = cambuf[1];
+    rcam.extrinsic_cam2world.GetCol(colidx).z = cambuf[2];
   }
-  return CamMatrix_AllGood;
+  rcam.extrinsic_status = CamMatrix_AllGood;
+  return true;
 }
 
 

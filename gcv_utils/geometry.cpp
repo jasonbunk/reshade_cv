@@ -3,7 +3,7 @@
 #include <sstream>
 
 template<typename FT>
-int Vec4T<FT>::serialize_into(char *rbuf, int buflen, bool wrapbrackets) {
+int Vec4T<FT>::serialize_into(char *rbuf, int buflen, bool wrapbrackets) const {
 	if (rbuf == nullptr || buflen <= 3) return -1;
 	if (wrapbrackets) {
 		rbuf[0] = '[';
@@ -16,7 +16,7 @@ int Vec4T<FT>::serialize_into(char *rbuf, int buflen, bool wrapbrackets) {
 }
 
 template<typename FT>
-int Vec4refT<FT>::serialize_into(char *rbuf, int buflen, bool wrapbrackets) {
+int Vec4refT<FT>::serialize_into(char *rbuf, int buflen, bool wrapbrackets) const {
 	if (rbuf == nullptr || buflen <= 1) return -1;
 	return Vec4(x, y, z, t).serialize_into(rbuf, buflen, wrapbrackets);
 }
@@ -68,11 +68,19 @@ CamMatrixT<FT>::CamMatrixT(const double* rawptr3x4) {
 }
 template<typename FT>
 Vec4refT<FT> CamMatrixT<FT>::GetRow(int i) {
-	// TODO: assertion if bad i
-	return Vec4refT<FT>(arr3x4[i * 4 + 0],
-				        arr3x4[i * 4 + 1],
-				        arr3x4[i * 4 + 2],
-				        arr3x4[i * 4 + 3]);
+    // TODO: assertion if bad i
+    return Vec4refT<FT>(arr3x4[i * 4 + 0],
+                        arr3x4[i * 4 + 1],
+                        arr3x4[i * 4 + 2],
+                        arr3x4[i * 4 + 3]);
+}
+template<typename FT>
+Vec4T<FT> CamMatrixT<FT>::GetRowCopy(int i) const {
+    // TODO: assertion if bad i
+    return Vec4T<FT>(arr3x4[i * 4 + 0],
+                     arr3x4[i * 4 + 1],
+                     arr3x4[i * 4 + 2],
+                     arr3x4[i * 4 + 3]);
 }
 template<typename FT>
 Vec3refT<FT> CamMatrixT<FT>::GetCol(int i) {
@@ -135,7 +143,7 @@ FT& Vec4T<FT>::at(int i) {
 
 #define CAMMATBUFLEN 96
 template<typename FT>
-std::string CamMatrixT<FT>::serialize() {
+std::string CamMatrixT<FT>::serialize() const {
 	char cstrbuf[CAMMATBUFLEN*sizeof(FT)];
 	memset(cstrbuf, 0, CAMMATBUFLEN*sizeof(FT));
 	serialize_into(cstrbuf, CAMMATBUFLEN*sizeof(FT));
@@ -185,9 +193,9 @@ Vec3T<FT> Vec3T<FT>::cross(const Vec3refT<FT>& other) const {
 }
 template<typename FT>
 Vec3T<FT> Vec3T<FT>::cross(FT a, FT b, FT c) const {
-	return Vec3T<FT>(y*c - z*b,
-		             z*a - x*c,
-		             x*b - y*a);
+    return Vec3T<FT>(y*c - z*b,
+                     z*a - x*c,
+                     x*b - y*a);
 }
 
 template<typename FT>
@@ -224,12 +232,12 @@ int serialize_several_vec4s(std::vector<Vec4T<FT> > &vecs, char *rbuf, int bufle
 }
 
 template<typename FT>
-int CamMatrixT<FT>::serialize_into(char *rbuf, int buflen) {
+int CamMatrixT<FT>::serialize_into(char *rbuf, int buflen) const {
 	if (rbuf == nullptr || buflen <= 1) return -1;
 	std::vector<Vec4T<FT> > vecs;
-	vecs.emplace_back(GetRow(0));
-	vecs.emplace_back(GetRow(1));
-	vecs.emplace_back(GetRow(2));
+	vecs.emplace_back(GetRowCopy(0));
+	vecs.emplace_back(GetRowCopy(1));
+	vecs.emplace_back(GetRowCopy(2));
 	return serialize_several_vec4s(vecs, rbuf, buflen);
 }
 

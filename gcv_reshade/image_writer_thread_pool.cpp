@@ -131,14 +131,14 @@ std::string image_writer_thread_pool::gamename_verbose() {
 	if (!init_on_startup()) return "";
 	return game->gamename_verbose();
 }
-uint8_t image_writer_thread_pool::get_camera_matrix(CamMatrix &rcam, std::string &errstr) {
+bool image_writer_thread_pool::get_camera_matrix(CamMatrixData &rcam, std::string &errstr) {
 	if (!init_on_startup()) {
 		errstr += std::string("failed to init/recognize game ") + lowercasenameofcurrentprocessexe();
-		return CamMatrix_Uninitialized;
+		return false;
 	}
 	if (!init_in_game()) {
 		errstr += "failed to init in game?";
-		return CamMatrix_Uninitialized;
+		return false;
 	}
 	return game->get_camera_matrix(rcam, errstr);
 }

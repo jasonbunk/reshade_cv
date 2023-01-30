@@ -16,8 +16,9 @@ float GameHorizonZeroDawn::convert_to_physical_distance_depth_u64(uint64_t depth
 	return 0.00313259 / (1.0 - normalizeddepth * 1.00787352);
 }
 
-uint8_t GameHorizonZeroDawn::get_camera_matrix(CamMatrix& rcam, std::string& errstr) {
-	if (!init_in_game()) return CamMatrix_Uninitialized;
+bool GameHorizonZeroDawn::get_camera_matrix(CamMatrixData& rcam, std::string& errstr) {
+	rcam.extrinsic_status = CamMatrix_Uninitialized;
+	if (!init_in_game()) return false;
 	const UINT_PTR dll4cambaseaddr = (UINT_PTR)camera_dll;
 	SIZE_T nbytesread = 0;
 	const uint64_t camlocstart = camera_dll_mem_start();
@@ -29,8 +30,9 @@ uint8_t GameHorizonZeroDawn::get_camera_matrix(CamMatrix& rcam, std::string& err
 			campos.at(flit) = readbuf[flit * 4];
 			camdir.at(flit) = readbuf[(flit + 4) * 4];
 		}
-		rcam.build_from_pos_and_lookdir(campos, camdir);
-		return CamMatrix_AllGood;
+		rcam.extrinsic_cam2world.build_from_pos_and_lookdir(campos, camdir);
+		rcam.extrinsic_status = CamMatrix_AllGood;
+		return true;
 	}
-	return CamMatrix_Uninitialized;
+	return false;
 }

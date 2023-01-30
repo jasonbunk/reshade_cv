@@ -27,12 +27,12 @@ protected:
 
   virtual scriptedcam_checkbuf_funptr get_scriptedcambuf_checkfun() const;
   virtual uint64_t get_scriptedcambuf_sizebytes() const { return 0; }
-  virtual bool copy_scriptedcambuf_to_matrix(uint8_t* buf, uint64_t buflen, CamMatrix& rcam, std::string& errstr) const { return false; }
-  bool read_scripted_cambuf_and_copy_to_matrix(CamMatrix& rcam, std::string& errstr); // not virtual, no need to override; just override the above three
+  virtual bool copy_scriptedcambuf_to_matrix(uint8_t* buf, uint64_t buflen, CamMatrixData& rcam, std::string& errstr) const { return false; }
+  bool read_scripted_cambuf_and_copy_to_matrix(CamMatrixData& rcam, std::string& errstr); // not virtual, no need to override; just override the above three
 
 public:
   virtual bool init_in_game() override;
-  virtual uint8_t get_camera_matrix(CamMatrix& rcam, std::string& errstr) override;
+  virtual bool get_camera_matrix(CamMatrixData& rcam, std::string& errstr) override;
   // memory scans
   virtual bool scan_all_memory_for_scripted_cam_matrix(std::string& errstr) override;
 };

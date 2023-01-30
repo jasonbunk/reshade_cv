@@ -42,7 +42,7 @@ public:
 	bool game_knows_depthbuffer();
 	std::string gamename_simpler();
 	std::string gamename_verbose();
-	uint8_t get_camera_matrix(CamMatrix &rcam, std::string &errstr);
+	bool get_camera_matrix(CamMatrixData &rcam, std::string &errstr);
 
 	std::string output_filepath_creates_outdir_if_needed(const std::string &base_filename);
 
