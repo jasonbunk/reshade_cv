@@ -29,6 +29,7 @@ struct Vec4refT {
 	FT& at(int which) { if (which <= 0) return x; if (which >= 3) return t; return which == 1 ? y : z; }
 	FT atc(int which) const { if (which <= 0) return x; if (which >= 3) return t; return which == 1 ? y : z; }
 	int serialize_into(char *rbuf, int buflen, bool wrapbrackets);
+	std::string to_string(bool wrap_brackets) const;
 	//Vec4T<FT> clone() const { return Vec4T<FT>(x, y, z, t); }
 };
 
@@ -57,9 +58,12 @@ struct Vec4T {
 	Vec4T(FT x_, FT y_, FT z_, FT t_) : x(x_), y(y_), z(z_), t(t_) {}
 	Vec4T(const Vec4refT<FT>& other) : x(other.x), y(other.y), z(other.z), t(other.t) {}
 	Vec4refT<FT> ref() { return Vec4refT<FT>(x, y, z, t); }
+	std::vector<FT> as_vector() const;
+	FT& at(int i);
 	void normalize();
 	FT dot(const Vec4T<FT>& other) const;
 	int serialize_into(char* rbuf, int buflen, bool wrapbrackets);
+	std::string to_string(bool wrap_brackets) const;
 };
 
 template<typename FT>

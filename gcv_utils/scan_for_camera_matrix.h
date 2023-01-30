@@ -11,19 +11,20 @@ class AllMemScanner {
 	uint64_t currmemloc;
 	uint64_t bufminlen;
 	uint64_t triggerbytes;
+	bool has_triggerbytes;
 	HANDLE hProcess;
 	HMODULE hCamDLL;
 	std::string& errstr;
 	std::vector<uint8_t> databuf;
 public:
 	AllMemScanner() = delete;
-	AllMemScanner(HANDLE hProcHandle, uint64_t wantbufminlength, std::string& errorstr, uint64_t triggerpattern)
-		: currmemloc(8ull), bufminlen(wantbufminlength), triggerbytes(triggerpattern), hProcess(hProcHandle), errstr(errorstr) {
+	AllMemScanner(HANDLE hProcHandle, uint64_t wantbufminlength, std::string& errorstr, uint64_t triggerpattern, bool has_triggerpattern)
+		: currmemloc(8ull), bufminlen(wantbufminlength), triggerbytes(triggerpattern), has_triggerbytes(has_triggerpattern), hProcess(hProcHandle), errstr(errorstr) {
 		if (hProcess == 0) {
 			errstr += "AllMemScanner: error: hProcess == 0";
 		} else {
 			databuf.resize(scanbufsize + wantbufminlength);
 		}
 	}
-	bool iterate_next(uint64_t& foundmemloc, const uint8_t*& foundbuf, uint64_t& foundbuflen, bool (*checkpossiblebuf)(const uint8_t* buf, uint64_t nbytes));
+	bool iterate_next(uint64_t& foundmemloc, const uint8_t*& foundbuf, uint64_t& foundbuflen, const void* scanctx, bool (*checkpossiblebuf)(const void* ctx, const uint8_t* buf, uint64_t nbytes));
 };

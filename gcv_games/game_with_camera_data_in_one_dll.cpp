@@ -16,49 +16,22 @@ bool GameWithCameraDataInOneDLL::init_in_game() {
   return camera_dll != 0;
 }
 
-static constexpr uint64_t NUMCAMFLOATSHASHED = 13ull;
-template<typename FT> constexpr uint64_t CAMBUFNUMBYTES() { return 8ull + (NUMCAMFLOATSHASHED + 3ull) * sizeof(FT); }
 
-// A simple lua script can write camera coordinates into an array of contiguous floats.
-// During a memory scan, this function can check a potentially matching memory buffer by reading the floats and verifying their hash.
-template<typename FT>
-bool checkbufscriptedcammatrixcounter(const uint8_t* buf, uint64_t buflen) {
-  if (buflen < CAMBUFNUMBYTES<FT>()) {
-    return false;
-  }
-  const FT* bufvals = reinterpret_cast<const FT*>(buf+8);
-  if (std::isfinite(bufvals[0]) && bufvals[0] > 0.5) {
-    FT allsumhash = bufvals[0]; // start with the counter; the counter is included in the hash
-    FT plusorminushhash = bufvals[0];
-    for (int ii = 1; ii < (1 + NUMCAMFLOATSHASHED); ++ii) {
-      allsumhash += bufvals[ii];
-      if (ii % 2 == 0) {
-        plusorminushhash += bufvals[ii];
-      } else {
-        plusorminushhash -= bufvals[ii];
-      }
-    }
-    const bool retval = floats_nearly_equal<FT>(allsumhash, bufvals[1+NUMCAMFLOATSHASHED])
-                     && floats_nearly_equal<FT>(plusorminushhash, bufvals[2+NUMCAMFLOATSHASHED]);
-    return retval;
-  }
-  return false;
+bool dummy_check_scriptedcambuf(const void* scanctx, const uint8_t* buf, uint64_t buflen) {
+    return true;
+}
+scriptedcam_checkbuf_funptr GameWithCameraDataInOneDLL::get_scriptedcambuf_checkfun() const {
+    return dummy_check_scriptedcambuf;
 }
 
-template<typename FT>
-bool GameWithCameraDataInOneDLL::read_scripted_cambuf_and_copytomatrix(CamMatrix& rcam, std::string& errstr) {
+
+bool GameWithCameraDataInOneDLL::read_scripted_cambuf_and_copy_to_matrix(CamMatrix& rcam, std::string& errstr) {
   if (cam_matrix_mem_loc_saved == 0 && !scan_all_memory_for_scripted_cam_matrix(errstr)) return false;
-  uint8_t copybuf[CAMBUFNUMBYTES<FT>()];
-  FT* dbuf = nullptr;
+  std::vector<uint8_t> copybuf(get_scriptedcambuf_sizebytes());
   SIZE_T nbytesread = 0;
-  if (tryreadmemory(gamename_verbose() + std::string("scriptedcam"), errstr, mygame_handle_exe, (LPCVOID)(cam_matrix_mem_loc_saved), (LPVOID)copybuf, CAMBUFNUMBYTES<FT>(), &nbytesread)) {
-    if (checkbufscriptedcammatrixcounter<FT>(copybuf, CAMBUFNUMBYTES<FT>())) {
-      dbuf = reinterpret_cast<FT*>(copybuf+8) + 1;
-      for (int ii = 0; ii < 12; ++ii) {
-        rcam.arr3x4[ii] = dbuf[ii];
-      }
-      rcam.fov = dbuf[12];
-      return true;
+  if (tryreadmemory(gamename_verbose() + std::string("scriptedcam"), errstr, mygame_handle_exe, (LPCVOID)(cam_matrix_mem_loc_saved), (LPVOID)(copybuf.data()), get_scriptedcambuf_sizebytes(), &nbytesread)) {
+    if (get_scriptedcambuf_checkfun()(nullptr, copybuf.data(), get_scriptedcambuf_sizebytes())) {
+      return copy_scriptedcambuf_to_matrix(copybuf.data(), nbytesread, rcam, errstr);
     } else {
       errstr += std::string("after reading memory at ") + std::to_string(cam_matrix_mem_loc_saved) + std::string(", float hash failed");
     }
@@ -72,11 +45,8 @@ bool GameWithCameraDataInOneDLL::read_scripted_cambuf_and_copytomatrix(CamMatrix
 uint8_t GameWithCameraDataInOneDLL::get_camera_matrix(CamMatrix& rcam, std::string& errstr) {
   if (!init_in_game()) return CamMatrix_Uninitialized;
   const GameCamDLLMatrixType mattype = camera_dll_matrix_format();
-  if (mattype == GameCamDLLMatrix_allmemscanrequiredtofindscriptedtransform_buf_double) {
-    if(read_scripted_cambuf_and_copytomatrix<double>(rcam, errstr)) return CamMatrix_AllGood;
-    return CamMatrix_Uninitialized;
-  } else if (mattype == GameCamDLLMatrix_allmemscanrequiredtofindscriptedtransform_buf_float) {
-    if (read_scripted_cambuf_and_copytomatrix<float>(rcam, errstr)) return CamMatrix_AllGood;
+  if (mattype == GameCamDLLMatrix_allmemscanrequiredtofindscriptedcambuf) {
+    if(read_scripted_cambuf_and_copy_to_matrix(rcam, errstr)) return CamMatrix_AllGood;
     return CamMatrix_Uninitialized;
   }
   SIZE_T nbytesread = 0;
@@ -115,29 +85,20 @@ uint8_t GameWithCameraDataInOneDLL::get_camera_matrix(CamMatrix& rcam, std::stri
 bool GameWithCameraDataInOneDLL::scan_all_memory_for_scripted_cam_matrix(std::string& errstr)
 {
   const GameCamDLLMatrixType mattype = camera_dll_matrix_format();
-  if(mattype != GameCamDLLMatrix_allmemscanrequiredtofindscriptedtransform_buf_double && mattype != GameCamDLLMatrix_allmemscanrequiredtofindscriptedtransform_buf_float) {
+  if(mattype != GameCamDLLMatrix_allmemscanrequiredtofindscriptedcambuf) {
     errstr += std::string("mat type ") + std::to_string(((int)mattype)) + std::string(" not compatible with scan_all_memory_for_scripted_cam_matrix()");
     return false;
   }
-  const bool usedouble = (mattype == GameCamDLLMatrix_allmemscanrequiredtofindscriptedtransform_buf_double);
-  const uint64_t bufbytes = usedouble ? CAMBUFNUMBYTES<double>() : CAMBUFNUMBYTES<float>();
+  const uint64_t bufbytes = get_scriptedcambuf_sizebytes();
   constexpr uint64_t magicbytes = 4429373075689993337ull; // should rarely occur in game memory; so, easy to search for
 
-  AllMemScanner scanner(mygame_handle_exe, bufbytes, errstr, magicbytes);
-  double highestcounter = 0.5;
-  uint64_t highestctrmloc = 0;
+  AllMemScanner scanner(mygame_handle_exe, bufbytes, errstr, magicbytes, true);
   uint64_t foundloc = 0;
-  const uint8_t* foundbuf;
-  uint64_t f_b_l;
-  double foundcounter;
-  while (scanner.iterate_next(foundloc, foundbuf, f_b_l, usedouble ? checkbufscriptedcammatrixcounter<double> : checkbufscriptedcammatrixcounter<float>)) {
-    foundcounter = usedouble ? reinterpret_cast<const double*>(foundbuf+8)[0] : reinterpret_cast<const float*>(foundbuf+8)[0];
-    if (foundcounter > highestcounter) {
-      highestcounter = foundcounter;
-      highestctrmloc = foundloc;
-      break; // immediately break upon first finding a matching array (with a valid float hash)
-    }
+  const uint8_t* foundbuf = nullptr;
+  uint64_t f_b_l = 0;
+  while (scanner.iterate_next(foundloc, foundbuf, f_b_l, nullptr, get_scriptedcambuf_checkfun())) {
+    cam_matrix_mem_loc_saved = foundloc;
+    return true; // immediately break upon first finding a matching array (with a valid float hash)
   }
-  cam_matrix_mem_loc_saved = highestctrmloc;
-  return highestctrmloc > 0;
+  return false;
 }

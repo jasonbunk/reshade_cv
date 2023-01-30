@@ -8,9 +8,10 @@ enum GameCamDLLMatrixType {
   GameCamDLLMatrix_4x4,
   GameCamDLLMatrix_pos_and_3x3rot,
   GameCamDLLMatrix_pos_and_4x3rot,
-  GameCamDLLMatrix_allmemscanrequiredtofindscriptedtransform_buf_float,
-  GameCamDLLMatrix_allmemscanrequiredtofindscriptedtransform_buf_double,
+  GameCamDLLMatrix_allmemscanrequiredtofindscriptedcambuf,
 };
+
+typedef bool (*scriptedcam_checkbuf_funptr)(const void*, const uint8_t*, uint64_t);
 
 class GameWithCameraDataInOneDLL : public GameInterface {
 protected:
@@ -24,8 +25,10 @@ protected:
   virtual uint64_t camera_dll_second_memloc() const { return 0; } // only used if rotation matrix and position are in different locations
   virtual GameCamDLLMatrixType camera_dll_matrix_format() const = 0;
 
-  template<typename FT>
-  bool read_scripted_cambuf_and_copytomatrix(CamMatrix& rcam, std::string& errstr);
+  virtual scriptedcam_checkbuf_funptr get_scriptedcambuf_checkfun() const;
+  virtual uint64_t get_scriptedcambuf_sizebytes() const { return 0; }
+  virtual bool copy_scriptedcambuf_to_matrix(uint8_t* buf, uint64_t buflen, CamMatrix& rcam, std::string& errstr) const { return false; }
+  bool read_scripted_cambuf_and_copy_to_matrix(CamMatrix& rcam, std::string& errstr); // not virtual, no need to override; just override the above three
 
 public:
   virtual bool init_in_game() override;

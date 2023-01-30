@@ -37,6 +37,22 @@ std::string Vec3T<FT>::to_string(bool wrap_brackets) const {
 	if (wrap_brackets) strstr << "]";
 	return strstr.str();
 }
+template<typename FT>
+std::string Vec4T<FT>::to_string(bool wrap_brackets) const {
+	std::stringstream strstr;
+	if (wrap_brackets) strstr << "[";
+	strstr << x << "," << y << "," << z << "," << t;
+	if (wrap_brackets) strstr << "]";
+	return strstr.str();
+}
+template<typename FT>
+std::string Vec4refT<FT>::to_string(bool wrap_brackets) const {
+	std::stringstream strstr;
+	if (wrap_brackets) strstr << "[";
+	strstr << x << "," << y << "," << z << "," << t;
+	if (wrap_brackets) strstr << "]";
+	return strstr.str();
+}
 
 template<typename FT>
 CamMatrixT<FT>::CamMatrixT() {
@@ -94,6 +110,27 @@ void CamMatrixT<FT>::build_from_pos_and_lookdir(const Vec3refT<FT>& pos, const V
 template<typename FT>
 void CamMatrixT<FT>::build_from_pos_and_lookdir(Vec3T<FT> pos, Vec3T<FT> lookdir) {
 	build_from_pos_and_lookdir(pos.ref(), lookdir.ref());
+}
+
+template<typename FT>
+std::vector<FT> Vec4T<FT>::as_vector() const {
+	std::vector<FT> ret(4);
+	ret[0] = x;
+	ret[1] = y;
+	ret[2] = z;
+	ret[3] = t;
+	return ret;
+}
+
+template<typename FT>
+FT& Vec4T<FT>::at(int i) {
+	switch (i) {
+	case 0: return x;
+	case 1: return y;
+	case 2: return z;
+	case 3: return t;
+	}
+	// TODO: assert or something!
 }
 
 #define CAMMATBUFLEN 96

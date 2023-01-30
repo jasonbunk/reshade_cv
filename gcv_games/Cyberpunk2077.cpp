@@ -1,15 +1,26 @@
 // Copyright (C) 2022 Jason Bunk
 #include "Cyberpunk2077.h"
 #include "gcv_utils/depth_utils.h"
+#include "gcv_utils/scripted_cam_buf_templates.h"
 
 // For this game, scripting is made easy by Cyber Engine Tweaks,
 // so I provide a simple lua script which stashes camera coordinates into a double[] buffer.
 
-std::string GameCyberpunk2077::gamename_verbose() const { return "Cyberpunk2077_patch161"; } // tested for this build
+std::string GameCyberpunk2077::gamename_verbose() const { return "Cyberpunk2077"; } // hopefully continues to work with future patches via the mod lua
 
 std::string GameCyberpunk2077::camera_dll_name() const { return ""; } // no dll name, it's available in the exe memory space
 uint64_t GameCyberpunk2077::camera_dll_mem_start() const { return 0; }
-GameCamDLLMatrixType GameCyberpunk2077::camera_dll_matrix_format() const { return GameCamDLLMatrix_allmemscanrequiredtofindscriptedtransform_buf_double; }
+GameCamDLLMatrixType GameCyberpunk2077::camera_dll_matrix_format() const { return GameCamDLLMatrix_allmemscanrequiredtofindscriptedcambuf; }
+
+scriptedcam_checkbuf_funptr GameCyberpunk2077::get_scriptedcambuf_checkfun() const {
+	return template_check_scriptedcambuf_hash<double, 13, 1>;
+}
+uint64_t GameCyberpunk2077::get_scriptedcambuf_sizebytes() const {
+	return template_scriptedcambuf_sizebytes<double, 13, 1>();
+}
+bool GameCyberpunk2077::copy_scriptedcambuf_to_matrix(uint8_t* buf, uint64_t buflen, CamMatrix& rcam, std::string& errstr) const {
+	return template_copy_scriptedcambuf_extrinsic_cam2world_and_fov<double, 13, 1>(buf, buflen, rcam, errstr);
+}
 
 bool GameCyberpunk2077::can_interpret_depth_buffer() const {
 	return true;

@@ -149,6 +149,7 @@
     <ClInclude Include="..\gcv_utils\memread.h" />
     <ClInclude Include="..\gcv_utils\miscutils.h" />
     <ClInclude Include="..\gcv_utils\scan_for_camera_matrix.h" />
+    <ClInclude Include="..\gcv_utils\scripted_cam_buf_templates.h" />
     <ClInclude Include="..\gcv_utils\simple_packed_buf.h" />
     <ClInclude Include="generic_depth_struct.h" />
     <ClInclude Include="image_writer_thread_pool.h" />

@@ -295,6 +295,7 @@ bool copy_texture_image_given_ready_resource_into_packedbuf(
 		if (!dstBuf.set_pixfmt_and_alloc_bytes(BUF_PIX_FMT_RGBA)) return false;
 		bc5_block_copy(dstBuf, desc, data);
 		break;
+	case format::r24_unorm_x8_uint:
 	case format::r24_g8_typeless: // crysis depth: "DXGI_FORMAT_R24G8_TYPELESS: A two-component, 32-bit typeless format that supports 24 bits for the red channel and 8 bits for the green channel."
 		if (!isdepth || !dstBuf.set_pixfmt_and_alloc_bytes(BUF_PIX_FMT_GRAYF32)) return false;
 		depth_gray_bytesLE_to_f32(dstBuf, desc, data, 0, 3, 0, gamehandle, depth_settings);

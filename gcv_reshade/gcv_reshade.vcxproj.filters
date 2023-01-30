@@ -198,6 +198,9 @@
     <ClInclude Include="..\gcv_utils\depth_utils.h">
       <Filter>gcv_utils</Filter>
     </ClInclude>
+    <ClInclude Include="..\gcv_utils\scripted_cam_buf_templates.h">
+      <Filter>gcv_utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="3rdparty">

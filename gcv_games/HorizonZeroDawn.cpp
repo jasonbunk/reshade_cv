@@ -18,13 +18,13 @@ float GameHorizonZeroDawn::convert_to_physical_distance_depth_u64(uint64_t depth
 
 uint8_t GameHorizonZeroDawn::get_camera_matrix(CamMatrix& rcam, std::string& errstr) {
 	if (!init_in_game()) return CamMatrix_Uninitialized;
-	UINT_PTR dll4cambaseaddr = (UINT_PTR)camera_dll;
+	const UINT_PTR dll4cambaseaddr = (UINT_PTR)camera_dll;
 	SIZE_T nbytesread = 0;
 	const uint64_t camlocstart = camera_dll_mem_start();
 	float readbuf[25];
 	Vec3 campos, camdir;
-	if (tryreadmemory(gamename_verbose() + std::string("_3x4cam"), errstr, mygame_handle_exe,
-		(void*)(dll4cambaseaddr + camlocstart), reinterpret_cast<LPVOID>(readbuf), 100, &nbytesread)) {
+	if (tryreadmemory(gamename_verbose() + std::string("_camandlook"), errstr, mygame_handle_exe,
+		(LPCVOID)(dll4cambaseaddr + camlocstart), reinterpret_cast<LPVOID>(readbuf), 100, &nbytesread)) {
 		for (int flit = 0; flit < 3; ++flit) {
 			campos.at(flit) = readbuf[flit * 4];
 			camdir.at(flit) = readbuf[(flit + 4) * 4];

@@ -2,7 +2,7 @@
 #include "scan_for_camera_matrix.h"
 
 
-bool AllMemScanner::iterate_next(uint64_t& foundmemloc, const uint8_t*& foundbuf, uint64_t& foundbuflen, bool (*checkpossiblebuf)(const uint8_t* buf, uint64_t nbytes)) {
+bool AllMemScanner::iterate_next(uint64_t& foundmemloc, const uint8_t*& foundbuf, uint64_t& foundbuflen, const void* scanctx, bool (*checkpossiblebuf)(const void* ctx, const uint8_t* buf, uint64_t nbytes)) {
 	if (databuf.empty()) return false;
 	SIZE_T nbytesread = 0;
 	uint64_t bytescopiedoffset;
@@ -32,7 +32,7 @@ bool AllMemScanner::iterate_next(uint64_t& foundmemloc, const uint8_t*& foundbuf
 				llast = nbytesread - bufminlen;
 				dptr = databuf.data();
 				for (ii = 0; ii <= llast; ii += 4) {
-					if (*reinterpret_cast<const uint64_t*>(dptr + ii) == triggerbytes && checkpossiblebuf(dptr + ii, llast - ii)) {
+					if ((!has_triggerbytes || *reinterpret_cast<const uint64_t*>(dptr + ii) == triggerbytes) && checkpossiblebuf(scanctx, dptr + ii, llast - ii)) {
 						foundmemloc = currmemloc + ii;
 						foundbuf = dptr + ii;
 						foundbuflen = llast - ii;
@@ -54,7 +54,7 @@ bool AllMemScanner::iterate_next(uint64_t& foundmemloc, const uint8_t*& foundbuf
 					llast = nbytesread + bytescopiedoffset - bufminlen;
 					dptr = databuf.data();
 					for (ii = 0; ii <= llast; ii += 4) {
-						if (*reinterpret_cast<const uint64_t*>(dptr + ii) == triggerbytes && checkpossiblebuf(dptr + ii, llast - ii)) {
+						if ((!has_triggerbytes || *reinterpret_cast<const uint64_t*>(dptr + ii) == triggerbytes) && checkpossiblebuf(scanctx, dptr + ii, llast - ii)) {
 							foundmemloc = currmemloc + ii - bytescopiedoffset;
 							foundbuf = dptr + ii;
 							foundbuflen = llast - ii;
