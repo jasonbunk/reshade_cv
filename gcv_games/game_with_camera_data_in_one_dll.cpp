@@ -107,5 +107,12 @@ bool GameWithCameraDataInOneDLL::scan_all_memory_for_scripted_cam_matrix(std::st
     cam_matrix_mem_loc_saved = foundloc;
     return true; // immediately break upon first finding a matching array (with a valid float hash)
   }
+  reshade::log_message(3, "fast memory scan failed, trying slow scan");
+  scanner.fastscan = false;
+  scanner.reset_iterator_to_beginning();
+  while (scanner.iterate_next(foundloc, foundbuf, f_b_l, nullptr, get_scriptedcambuf_checkfun())) {
+    cam_matrix_mem_loc_saved = foundloc;
+    return true;
+  }
   return false;
 }
