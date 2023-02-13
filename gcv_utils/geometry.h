@@ -87,8 +87,9 @@ struct CamMatrixT {
 template<typename FT>
 int serialize_several_vec4s(std::vector<Vec4T<FT> > &vecs, char *rbuf, int buflen);
 
-typedef CamMatrixT<float> CamMatrix;
-typedef Vec4refT<float> Vec4ref;
-typedef Vec3refT<float> Vec3ref;
-typedef Vec4T<float> Vec4;
-typedef Vec3T<float> Vec3;
+typedef double ftype;
+typedef CamMatrixT<ftype> CamMatrix;
+typedef Vec4refT<ftype> Vec4ref;
+typedef Vec3refT<ftype> Vec3ref;
+typedef Vec4T<ftype> Vec4;
+typedef Vec3T<ftype> Vec3;

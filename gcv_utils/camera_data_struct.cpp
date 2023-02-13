@@ -1,6 +1,7 @@
 // Copyright (C) 2022 Jason Bunk
 #include "camera_data_struct.h"
 #include <sstream>
+#include <iomanip>
 
 template<typename FT>
 std::string CamMatrixDataT<FT>::serialize_for_json(bool wrap_dict) const {
@@ -9,10 +10,10 @@ std::string CamMatrixDataT<FT>::serialize_for_json(bool wrap_dict) const {
 	rstr << "\"" << ((extrinsic_status == CamMatrix_AllGood) ? "extrinsic_cam2world" : "extrinsic_WIP")
 		<< "\":" << extrinsic_cam2world.serialize();
 	if (fov_v_degrees > FT(0.0)) {
-		rstr << ",\"fov_v_degrees\":" << fov_v_degrees;
+		rstr << ",\"fov_v_degrees\":" << std::setprecision(15) << fov_v_degrees;
 	}
 	if (fov_h_degrees > FT(0.0)) {
-		rstr << ",\"fov_h_degrees\":" << fov_h_degrees;
+		rstr << ",\"fov_h_degrees\":" << std::setprecision(15) << fov_h_degrees;
 	}
 	if (wrap_dict) rstr << "}";
 	return rstr.str();

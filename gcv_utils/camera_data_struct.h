@@ -20,4 +20,4 @@ struct CamMatrixDataT {
 	std::string serialize_for_json(bool wrap_dict) const;
 };
 
-typedef CamMatrixDataT<float> CamMatrixData;
+typedef CamMatrixDataT<ftype> CamMatrixData;

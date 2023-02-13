@@ -29,5 +29,5 @@ float GameResidentEvils::convert_to_physical_distance_depth_u64(uint64_t depthva
 	const double normalizeddepth = static_cast<double>(depthval) / 4294967295.0;
 	// This game has a logarithmic depth buffer with unknown constant(s).
 	// These numbers were found by a curve fit, so are approximate.
-	return 1.28064135 / (0.00045998854 + exp_fast_approx(355.142568 * normalizeddepth - 83.194776));
+	return 1.28 / (0.0004253421645545 + exp_fast_approx(354.8489261773826 * normalizeddepth - 83.12790960252826));
 }

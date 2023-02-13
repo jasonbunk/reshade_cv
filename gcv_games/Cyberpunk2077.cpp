@@ -26,9 +26,9 @@ bool GameCyberpunk2077::can_interpret_depth_buffer() const {
 	return true;
 }
 float GameCyberpunk2077::convert_to_physical_distance_depth_u64(uint64_t depthval) const {
-  const double normalizeddepth = static_cast<double>(depthval) / 4294967296.0;
-  // This game has a logarithmic depth buffer with unknown constant(s).
-  // These numbers were found by a curve fit, so are approximate,
-  // but should be about 99.5% accurate for depths from centimeters to kilometers
-	return 1.28410601 / (0.000080821547 + exp_fast_approx(355.3397906 * normalizeddepth - 83.92854443));
+	const double normalizeddepth = static_cast<double>(depthval) / 4294967295.0;
+	// This game has a logarithmic depth buffer with unknown constant(s).
+	// These numbers were found by a curve fit, so are approximate,
+	// but should be pretty accurate for any depth from centimeters to kilometers
+	return 1.28 / (0.000077579959 + exp_fast_approx(354.9329993 * normalizeddepth - 83.84035513));
 }

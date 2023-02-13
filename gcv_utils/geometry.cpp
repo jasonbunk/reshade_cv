@@ -7,12 +7,12 @@ int Vec4T<FT>::serialize_into(char *rbuf, int buflen, bool wrapbrackets) const {
 	if (rbuf == nullptr || buflen <= 3) return -1;
 	if (wrapbrackets) {
 		rbuf[0] = '[';
-		int gotlen = 1 + _snprintf(rbuf + 1, buflen - 1, "%.7f,%.7f,%.7f,%.7f", x, y, z, t);
+		int gotlen = 1 + _snprintf(rbuf + 1, buflen - 1, "%.12f,%.12f,%.12f,%.12f", x, y, z, t);
 		if (gotlen <= 0 || (gotlen + 2) >= buflen) return -1;
 		rbuf[gotlen] = ']';
 		return gotlen + 1;
 	}
-	return _snprintf(rbuf, buflen, "%.7f,%.7f,%.7f,%.7f", x, y, z, t);
+	return _snprintf(rbuf, buflen, "%.12f,%.12f,%.12f,%.12f", x, y, z, t);
 }
 
 template<typename FT>
@@ -141,7 +141,7 @@ FT& Vec4T<FT>::at(int i) {
 	// TODO: assert or something!
 }
 
-#define CAMMATBUFLEN 96
+#define CAMMATBUFLEN 128
 template<typename FT>
 std::string CamMatrixT<FT>::serialize() const {
 	char cstrbuf[CAMMATBUFLEN*sizeof(FT)];
