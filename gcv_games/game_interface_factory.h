@@ -16,7 +16,7 @@ class GameInterfaceFactory
 public:
 	static GameInterfaceFactory &get();
 
-	const char **listGameInterfaces(int &count);
+	const char **listGameInterfaces(size_t &count);
 	GameInterface *getGameInterface(const std::string &typeName);
 	bool registerGenerator(const char *typeName, const gameinterfcInstanceGenerator &funcCreate);
 

@@ -29,7 +29,7 @@ bool GameInterfaceFactory::registerGenerator(const char *typeName, const gameint
 	return m_generators.insert(std::make_pair(typeName, funcCreate)).second;
 }
 
-const char **GameInterfaceFactory::listGameInterfaces(int &count)
+const char **GameInterfaceFactory::listGameInterfaces(size_t &count)
 {
 	count = m_generators.size();
 	const char **arrayHead = new const char *[count];

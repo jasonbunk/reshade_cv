@@ -108,6 +108,7 @@
     <ClCompile Include="..\gcv_utils\depth_utils.cpp" />
     <ClCompile Include="..\gcv_utils\geometry.cpp" />
     <ClCompile Include="..\gcv_utils\image_queue_entry.cpp" />
+    <ClCompile Include="..\gcv_utils\log_queue_thread_safe.cpp" />
     <ClCompile Include="..\gcv_utils\memread.cpp" />
     <ClCompile Include="..\gcv_utils\miscutils.cpp" />
     <ClCompile Include="..\gcv_utils\scan_for_camera_matrix.cpp" />
@@ -150,6 +151,7 @@
     <ClInclude Include="..\gcv_utils\depth_utils.h" />
     <ClInclude Include="..\gcv_utils\geometry.h" />
     <ClInclude Include="..\gcv_utils\image_queue_entry.h" />
+    <ClInclude Include="..\gcv_utils\log_queue_thread_safe.h" />
     <ClInclude Include="..\gcv_utils\memread.h" />
     <ClInclude Include="..\gcv_utils\miscutils.h" />
     <ClInclude Include="..\gcv_utils\scan_for_camera_matrix.h" />

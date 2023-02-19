@@ -97,7 +97,8 @@
 #define FPZIP_H
 
 #ifndef FPZIP_FP
-#define FPZIP_FP FPZIP_FP_SAFE
+// "fast" is what is used by python fpzip
+#define FPZIP_FP FPZIP_FP_FAST
 #endif
 
 /* extern_ macro for exporting and importing symbols */

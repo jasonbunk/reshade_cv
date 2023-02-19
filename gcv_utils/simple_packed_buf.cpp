@@ -16,6 +16,10 @@ size_t simple_packed_buf::rowstride_bytes() const {
 	return width * bytes_per_pixel();
 }
 
+size_t simple_packed_buf::num_total_bytes() const {
+	return height * rowstride_bytes();
+}
+
 bool simple_packed_buf::set_pixfmt_and_alloc_bytes(BufPixelFormat pixfmt_) {
 	pixfmt = pixfmt_;
 	size_t bytesperpix = bytes_per_pixel();

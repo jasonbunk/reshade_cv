@@ -36,7 +36,7 @@ image_writer_thread_pool::~image_writer_thread_pool() {
 }
 
 void image_writer_thread_loop(ConcurrentQueue<queue_item_image2write *> *images2writequeue,
-		ConcurrentQueue<logqueueitem *> *errlogqueue,
+		logqueue *errlogqueue,
 		std::atomic<int> *keeplooping) {
 	queue_item_image2write *img2write = nullptr;
 	while (keeplooping->load() > 0) {
@@ -46,14 +46,10 @@ void image_writer_thread_loop(ConcurrentQueue<queue_item_image2write *> *images2
 				+ std::string("\' of type ") + std::to_string(img2write->mybuf.pixfmt)
 				+ std::string(" with writer(s) ") + std::to_string(img2write->writers)+std::string(" "));
 			if (!img2write->write_to_disk(logdesc)) {
-				logqueueitem *lqi = new logqueueitem(1,
-					std::string("FAILED to save") + logdesc);
-				errlogqueue->enqueue(lqi);
+				errlogqueue->enqueue(1, std::string("FAILED to save") + logdesc);
 			}
 			else {
-				logqueueitem *lqi = new logqueueitem(3,
-				    std::string("Saved") + logdesc);
-				errlogqueue->enqueue(lqi);
+				errlogqueue->enqueue(3, std::string("Saved") + logdesc);
 			}
 			delete img2write;
 		}
@@ -72,7 +68,7 @@ void image_writer_thread_pool::create_threads(size_t howmany) {
 	}
 	for (size_t ii = 0; ii < howmany; ++ii) {
 		threadkeepalives.push_back(new std::atomic<int>(1));
-		workthreads.emplace_back(image_writer_thread_loop, &images2writequeue, &errlogqueue, threadkeepalives.back());
+		workthreads.emplace_back(image_writer_thread_loop, &images2writequeue, this, threadkeepalives.back());
 	}
 	reshade::log_message(3, std::string(std::string("created ") + std::to_string(howmany) + std::string(" image writer threads")).c_str());
 }
@@ -99,14 +95,6 @@ void image_writer_thread_pool::change_num_threads(size_t new_num) {
 	}
 }
 
-void image_writer_thread_pool::print_waiting_log_messages() {
-	logqueueitem *lqi = nullptr;
-	while (errlogqueue.try_dequeue(lqi)) {
-		reshade::log_message(lqi->loglevel, lqi->msg.c_str());
-		delete lqi;
-		lqi = nullptr;
-	}
-}
 
 bool image_writer_thread_pool::init_on_startup() {
 	if (game != nullptr) return true;
@@ -153,7 +141,7 @@ bool image_writer_thread_pool::save_texture_image_needing_resource_barrier_copy(
 		return false;
 	}
 	if (num_threads() == 0) {
-		change_num_threads(1);
+		change_num_threads(3);
 	}
 	if (num_threads() == 0) return false;
 	init_in_game();

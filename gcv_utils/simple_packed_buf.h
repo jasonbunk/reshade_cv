@@ -21,6 +21,7 @@ struct simple_packed_buf {
 
 	size_t rowstride_bytes() const; // number of bytes from one row to the next
 	size_t bytes_per_pixel() const;
+	size_t num_total_bytes() const;
 
 	bool init_full(size_t width_, size_t height_, BufPixelFormat pixfmt_);
 	bool set_pixfmt_and_alloc_bytes(BufPixelFormat pixfmt_);

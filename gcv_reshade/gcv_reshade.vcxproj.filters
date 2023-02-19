@@ -88,6 +88,9 @@
     <ClCompile Include="..\gcv_utils\camera_data_struct.cpp">
       <Filter>gcv_utils</Filter>
     </ClCompile>
+    <ClCompile Include="..\gcv_utils\log_queue_thread_safe.cpp">
+      <Filter>gcv_utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\3rdparty\concurrentqueue.h">
@@ -211,6 +214,9 @@
       <Filter>gcv_utils</Filter>
     </ClInclude>
     <ClInclude Include="..\gcv_utils\camera_data_struct.h">
+      <Filter>gcv_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gcv_utils\log_queue_thread_safe.h">
       <Filter>gcv_utils</Filter>
     </ClInclude>
   </ItemGroup>

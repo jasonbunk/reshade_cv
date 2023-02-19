@@ -124,6 +124,15 @@ namespace cnpy {
         fclose(fp);
     }
 
+    template<typename T> void npy_save_to_vec_buf(std::vector<uint8_t>& writehere, const T* data, const std::vector<size_t> shape) {
+        std::vector<char> header = create_npy_header<T>(shape);
+        const size_t nels = std::accumulate(shape.begin(), shape.end(), 1ull, std::multiplies<size_t>());
+        const size_t headerbytes = header.size()*sizeof(char);
+        writehere.resize(headerbytes + nels*sizeof(T));
+        memcpy(writehere.data(), header.data(), headerbytes);
+        memcpy(writehere.data()+headerbytes, data, nels*sizeof(T));
+    }
+
     template<typename T> void npy_save(std::string fname, const std::vector<T> data, std::string mode = "w") {
         std::vector<size_t> shape;
         shape.push_back(data.size());
