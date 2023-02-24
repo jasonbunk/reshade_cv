@@ -52,14 +52,18 @@ bool template_check_scriptedcambuf_hash(const void* scanctx, const uint8_t* buf,
 
 template<typename FT, int numcamfloatshashed, int bufstride>
 bool template_copy_scriptedcambuf_extrinsic_cam2world_and_fov(uint8_t* buf, uint64_t buflen, CamMatrixData& rcam, bool fov_is_vertical, std::string& errstr) {
-    const FT* dbuf = reinterpret_cast<const FT*>(buf + template_scriptedcambuf_numtriggerbytes<FT, bufstride>() + sizeof(FT) * bufstride);
-    for (int ii = 0; ii < 12; ++ii) {
-        rcam.extrinsic_cam2world.arr3x4[ii] = dbuf[ii * bufstride];
+    const FT* stridedbuf = reinterpret_cast<const FT*>(buf + template_scriptedcambuf_numtriggerbytes<FT, bufstride>() + sizeof(FT) * bufstride);
+    if (bufstride == 1) {
+        rcam.extrinsic_cam2world = cam_matrix_from_flattened_row_major_buffer(stridedbuf);
+    } else {
+        std::array<double,12> contigbuf;
+        for(int ii=0; ii<12; ++ii) { contigbuf[ii] = stridedbuf[ii*bufstride]; }
+        rcam.extrinsic_cam2world = cam_matrix_from_flattened_row_major_buffer(contigbuf.data());
     }
     if (fov_is_vertical) {
-        rcam.fov_v_degrees = dbuf[12 * bufstride];
+        rcam.fov_v_degrees = stridedbuf[12 * bufstride];
     } else {
-        rcam.fov_h_degrees = dbuf[12 * bufstride];
+        rcam.fov_h_degrees = stridedbuf[12 * bufstride];
     }
     return true;
 }

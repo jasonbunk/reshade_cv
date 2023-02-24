@@ -26,11 +26,11 @@ bool GameHorizonZeroDawn::get_camera_matrix(CamMatrixData& rcam, std::string& er
 	Vec3 campos, camdir;
 	if (tryreadmemory(gamename_verbose() + std::string("_camandlook"), errstr, mygame_handle_exe,
 		(LPCVOID)(dll4cambaseaddr + camlocstart), reinterpret_cast<LPVOID>(readbuf), 100, &nbytesread)) {
-		for (int flit = 0; flit < 3; ++flit) {
-			campos.at(flit) = readbuf[flit * 4];
-			camdir.at(flit) = readbuf[(flit + 4) * 4];
+		for (int ii = 0; ii < 3; ++ii) {
+			campos(ii) = readbuf[ii * 4];
+			camdir(ii) = readbuf[(ii + 4) * 4];
 		}
-		rcam.extrinsic_cam2world.build_from_pos_and_lookdir(campos, camdir);
+		rcam.extrinsic_cam2world = build_cam_matrix_from_pos_and_lookdir(campos, camdir);
 		rcam.extrinsic_status = CamMatrix_AllGood;
 		return true;
 	}

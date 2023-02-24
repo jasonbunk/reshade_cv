@@ -96,14 +96,11 @@ bool save_packedbuf_f32_using_fpzip(const std::string &filepath,
 	fpz->ny = srcBuf.height;
 	fpz->nz = 1;
 	fpz->nf = 1;
-	// write header
 	if (!fpzip_write_header(fpz)) {
 		errstr += std::string("fpzip: cannot write header: ") + std::string(fpzip_errstr[fpzip_errno]);
 		return false;
 	}
-	// perform actual compression
-	size_t outbytes = fpzip_write(fpz, srcBuf.cdata<void>());
-	if (!outbytes) {
+	if (!fpzip_write(fpz, srcBuf.cdata<void>())) {
 		errstr += std::string("fpzip: compression failed when writing ") + filepath
 			+ std::string(": ") + std::string(fpzip_errstr[fpzip_errno]);
 		return false;

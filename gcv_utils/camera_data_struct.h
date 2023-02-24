@@ -1,6 +1,7 @@
 #pragma once
 // Copyright (C) 2022 Jason Bunk
 #include "gcv_utils/geometry.h"
+#include <nlohmann/json.hpp>
 
 enum CamMatrixStatus {
 	CamMatrix_Uninitialized = 0,
@@ -10,14 +11,11 @@ enum CamMatrixStatus {
 	CamMatrix_WIP = 4,
 };
 
-template<typename FT>
-struct CamMatrixDataT {
+struct CamMatrixData {
 	CamMatrixStatus extrinsic_status = CamMatrix_Uninitialized;
-	CamMatrixT<FT> extrinsic_cam2world;
-	FT fov_v_degrees = FT(-9999.0);
-	FT fov_h_degrees = FT(-9999.0);
-	bool intrinsic_status() const { return fov_v_degrees > FT(0.0) || fov_h_degrees > FT(0.0); }
-	std::string serialize_for_json(bool wrap_dict) const;
+	CamMatrix extrinsic_cam2world;
+	ftype fov_v_degrees = ftype(-9999.0);
+	ftype fov_h_degrees = ftype(-9999.0);
+	bool intrinsic_status() const { return fov_v_degrees > ftype(0.0) || fov_h_degrees > ftype(0.0); }
+	nlohmann::json as_json() const;
 };
-
-typedef CamMatrixDataT<ftype> CamMatrixData;

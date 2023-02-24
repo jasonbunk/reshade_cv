@@ -1,5 +1,6 @@
 -- Copyright (C) 2022 Jason Bunk
--- Stash camera coordinates in a contiguous memory buffer, so it can be found by a c++ memory scan.
+-- This is a mod for Cyber Engine Tweaks: https://github.com/yamashi/CyberEngineTweaks
+-- Stashes camera coordinates in a contiguous memory buffer, so it can be found by a c++ memory scan.
 -- The buffer starts with a few distinct bytes, and is hashed for verification.
 -- See c++ function: scan_all_memory_for_scripted_cam_matrix()
 
