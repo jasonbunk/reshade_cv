@@ -21,7 +21,7 @@ void depth_gray_bytesLE_to_f32(simple_packed_buf &dstBuf, const resource_desc &d
 							size_t hint_srcbytes, size_t hint_srcbyteskeep, int hint_pitchadjusthack,
 							GameInterface* gamehandle, const depth_tex_settings &settings) {
 	if (dstBuf.pixfmt != BUF_PIX_FMT_GRAYF32) {
-		reshade::log_message(1, std::string(std::string("depth_gray_bytesLE_to_f32: dstBuf.pixfmt ") + std::to_string(static_cast<int64_t>(dstBuf.pixfmt))).c_str());
+		reshade::log_message(reshade::log_level::error, std::string(std::string("depth_gray_bytesLE_to_f32: dstBuf.pixfmt ") + std::to_string(static_cast<int64_t>(dstBuf.pixfmt))).c_str());
 		return;
 	}
 	const size_t settings_depthbyteskeep = (settings.depthbyteskeep > 0) ? settings.depthbyteskeep : hint_srcbyteskeep;
@@ -35,7 +35,7 @@ void depth_gray_bytesLE_to_f32(simple_packed_buf &dstBuf, const resource_desc &d
 																												 : (data.row_pitch >> static_cast<uint32_t>(-settings_adjustpitchhack)));
 	const bool gamehandle_can_interpret_depth = gamehandle != nullptr && gamehandle->can_interpret_depth_buffer();
 	if (settings.debug_mode || settings.more_verbose) {
-		reshade::log_message(3, std::string(std::string("depthgray: srcpixbytes ") + std::to_string(srcpixbytes)
+		reshade::log_message(reshade::log_level::info, std::string(std::string("depthgray: srcpixbytes ") + std::to_string(srcpixbytes)
 			+ std::string(", srcbytesfromformatrowptch ") + std::to_string(srcbytesfromformatrowptch)
 			+ std::string(", data.row_pitch ") + std::to_string(data.row_pitch)
 			+ std::string(", rowpitch ") + std::to_string(rowpitch)
@@ -50,7 +50,7 @@ void depth_gray_bytesLE_to_f32(simple_packed_buf &dstBuf, const resource_desc &d
 	if (settings.alreadyfloat) {
 		if (srcpixbytes == sizeof(float) && depthbytes2keep == sizeof(float)) {}
 		else {
-			reshade::log_message(1, "ERROR: settings.alreadyfloat() but invalid bytes per pix calculations");
+			reshade::log_message(reshade::log_level::error, "ERROR: settings.alreadyfloat() but invalid bytes per pix calculations");
 			return;
 		}
 	}
@@ -114,7 +114,7 @@ void depth_gray_bytesLE_to_f32(simple_packed_buf &dstBuf, const resource_desc &d
 		}
 	}
 	if (settings.debug_mode || settings.more_verbose) {
-		reshade::log_message(3, std::string(std::string("depth_gray_bytesLE_to_f32: min ") + std::to_string(minv) + std::string(", max ") + std::to_string(maxv)).c_str());
+		reshade::log_message(reshade::log_level::info, std::string(std::string("depth_gray_bytesLE_to_f32: min ") + std::to_string(minv) + std::string(", max ") + std::to_string(maxv)).c_str());
 	}
 }
 
@@ -311,12 +311,12 @@ bool copy_texture_image_given_ready_resource_into_packedbuf(
 		break;
 	default: {
 		// Unsupported format
-		reshade::log_message(1, std::string(std::string("Failed to save texture: unsupported texture format ")+std::to_string(static_cast<int>(desc.texture.format))).c_str());
+		reshade::log_message(reshade::log_level::error, std::string(std::string("Failed to save texture: unsupported texture format ")+std::to_string(static_cast<int>(desc.texture.format))).c_str());
 		return false;
 	}
 	}
 	if (depth_settings.more_verbose) {
-		reshade::log_message(3, std::string(std::string("copied texture with format ") + std::to_string(static_cast<int>(desc.texture.format))).c_str());
+		reshade::log_message(reshade::log_level::info, std::string(std::string("copied texture with format ") + std::to_string(static_cast<int>(desc.texture.format))).c_str());
 	}
 	return true;
 }
@@ -341,7 +341,7 @@ bool copy_texture_image_needing_resource_barrier_into_packedbuf(
 	else
 	{
 		if ((desc.usage & resource_usage::copy_source) != resource_usage::copy_source) {
-			reshade::log_message(1, std::string(std::string("Failed to save texture: bad desc.usage ") + std::to_string((int64_t)(desc.usage))).c_str());
+			reshade::log_message(reshade::log_level::error, std::string(std::string("Failed to save texture: bad desc.usage ") + std::to_string((int64_t)(desc.usage))).c_str());
 			return false;
 		}
 
@@ -350,7 +350,7 @@ bool copy_texture_image_needing_resource_barrier_into_packedbuf(
 
 		if (!device->create_resource(resource_desc(desc.texture.width, desc.texture.height, 1, 1, dstfmt, 1, memory_heap::gpu_to_cpu, resource_usage::copy_dest), nullptr, resource_usage::copy_dest, &intermediate))
 		{
-			reshade::log_message(1, "Failed to create system memory texture for texture dumping!");
+			reshade::log_message(reshade::log_level::error, "Failed to create system memory texture for texture dumping!");
 			return false;
 		}
 
@@ -369,7 +369,7 @@ bool copy_texture_image_needing_resource_barrier_into_packedbuf(
 		wasok = copy_texture_image_given_ready_resource_into_packedbuf(gamehandle, dstBuf, desc, mapped_data, isdepth, depth_settings);
 		device->unmap_texture_region(intermediate, 0);
 	} else {
-		reshade::log_message(1, "Failed to save texture: mapped_data.data == nullptr");
+		reshade::log_message(reshade::log_level::error, "Failed to save texture: mapped_data.data == nullptr");
 	}
 
 	if (intermediate != tex)

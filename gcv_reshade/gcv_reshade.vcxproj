@@ -45,10 +45,10 @@
     <TargetExt>.addon</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)3rdparty;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)3rdparty;$(SolutionDir);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)3rdparty;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)3rdparty;$(SolutionDir);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -56,7 +56,6 @@
       <SDLCheck>true</SDLCheck>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_DEPRECATE;NOMINMAX;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)..\reshade-5.6.0\include;$(SolutionDir)..\reshade-5.6.0\deps\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <DisableSpecificWarnings>4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
@@ -73,7 +72,6 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_DEPRECATE;NOMINMAX;ImTextureID=ImU64;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)..\reshade-5.6.0\include;$(SolutionDir)..\reshade-5.6.0\deps\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <DisableSpecificWarnings>4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
@@ -113,6 +111,7 @@
     <ClCompile Include="..\gcv_utils\miscutils.cpp" />
     <ClCompile Include="..\gcv_utils\scan_for_camera_matrix.cpp" />
     <ClCompile Include="..\gcv_utils\simple_packed_buf.cpp" />
+    <ClCompile Include="..\render_target_stats\render_target_stats_tracking.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="copy_texture_into_packedbuf.cpp" />
     <ClCompile Include="image_writer_thread_pool.cpp" />
@@ -157,6 +156,9 @@
     <ClInclude Include="..\gcv_utils\scan_for_camera_matrix.h" />
     <ClInclude Include="..\gcv_utils\scripted_cam_buf_templates.h" />
     <ClInclude Include="..\gcv_utils\simple_packed_buf.h" />
+    <ClInclude Include="..\render_target_stats\clicked_rgb_rendertargets.hpp" />
+    <ClInclude Include="..\render_target_stats\render_target_stats_tracking.hpp" />
+    <ClInclude Include="..\render_target_stats\reshade_tex_format_info.hpp" />
     <ClInclude Include="generic_depth_struct.h" />
     <ClInclude Include="image_writer_thread_pool.h" />
     <ClInclude Include="copy_texture_into_packedbuf.h" />

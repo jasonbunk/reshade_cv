@@ -84,8 +84,7 @@ std::string run_utils_tests() {
 	if (std::string().length() > 0) RETURNFAILST("A: empty string not empty!?");
 	if (std::string("").length() > 0) RETURNFAILST("B: empty string not empty!?");
 	if (basename_from_filepath("/hello/x").compare("x")) RETURNFAILST("basename_from_filepath");
-	char tmpbuf[hertsttbufsz];
-
+	
 	{const Vec3 testcross = Vec3( 5, 3, 2).cross(Vec3( 11, 7, 13)); CHECKVECNEAR("Vec3::cross test1", testcross, 25.0,-43.0, 2.0)}
 	{const Vec3 testcross = Vec3(-5, 3,-2).cross(Vec3( 11,-7, 13)); CHECKVECNEAR("Vec3::cross test2", testcross, 25.0, 43.0, 2.0)}
 	{const Vec3 testcross = Vec3(-5, 3,-2).cross(Vec3( 11,-7,-13)); CHECKVECNEAR("Vec3::cross test3", testcross,-53.0,-87.0, 2.0)}

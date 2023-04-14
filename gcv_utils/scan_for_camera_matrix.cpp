@@ -12,7 +12,7 @@ static constexpr uint64_t sizeofscannablememory = 0x7FFFFFFFFFFFull;
 
 #define STRINGIZE_DETAIL(x) #x
 #define STRINGIZE(x) STRINGIZE_DETAIL(x)
-#define ASSERTLOGTORESHADERETURNFALSE(x) if(!(x)){reshade::log_message(1, "scan assertion error: " __FILE__ " line " STRINGIZE(__LINE__)); currmemloc = sizeofscannablememory; return false;}
+#define ASSERTLOGTORESHADERETURNFALSE(x) if(!(x)){reshade::log_message(reshade::log_level::error, "scan assertion error: " __FILE__ " line " STRINGIZE(__LINE__)); currmemloc = sizeofscannablememory; return false;}
 
 
 template<bool hastriggerbytes_t, bool fastscan_t>

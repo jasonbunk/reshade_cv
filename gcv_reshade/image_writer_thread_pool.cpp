@@ -46,10 +46,10 @@ void image_writer_thread_loop(ConcurrentQueue<queue_item_image2write *> *images2
 				+ std::string("\' of type ") + std::to_string(img2write->mybuf.pixfmt)
 				+ std::string(" with writer(s) ") + std::to_string(img2write->writers)+std::string(" "));
 			if (!img2write->write_to_disk(logdesc)) {
-				errlogqueue->enqueue(1, std::string("FAILED to save") + logdesc);
+				errlogqueue->enqueue(reshade::log_level::error, std::string("FAILED to save") + logdesc);
 			}
 			else {
-				errlogqueue->enqueue(3, std::string("Saved") + logdesc);
+				errlogqueue->enqueue(reshade::log_level::info, std::string("Saved") + logdesc);
 			}
 			delete img2write;
 		}
@@ -61,7 +61,7 @@ void image_writer_thread_loop(ConcurrentQueue<queue_item_image2write *> *images2
 
 void image_writer_thread_pool::create_threads(size_t howmany) {
 	if ((num_threads()+howmany) > 9000) {
-		reshade::log_message(1,
+		reshade::log_message(reshade::log_level::error,
 			std::string(std::string("create_threads() bad num threads ")
 			+std::to_string(num_threads()+howmany)).c_str());
 		return;
@@ -70,7 +70,7 @@ void image_writer_thread_pool::create_threads(size_t howmany) {
 		threadkeepalives.push_back(new std::atomic<int>(1));
 		workthreads.emplace_back(image_writer_thread_loop, &images2writequeue, this, threadkeepalives.back());
 	}
-	reshade::log_message(3, std::string(std::string("created ") + std::to_string(howmany) + std::string(" image writer threads")).c_str());
+	reshade::log_message(reshade::log_level::info, std::string(std::string("created ") + std::to_string(howmany) + std::string(" image writer threads")).c_str());
 }
 
 void image_writer_thread_pool::join_and_delete_threads(size_t howmany) {
@@ -137,7 +137,7 @@ bool image_writer_thread_pool::save_texture_image_needing_resource_barrier_copy(
 	bool isdepth)
 {
 	if (tex == 0) {
-		reshade::log_message(1, std::string(std::string("depth texture null: failed to save ")+base_filename).c_str());
+		reshade::log_message(reshade::log_level::error, std::string(std::string("depth texture null: failed to save ")+base_filename).c_str());
 		return false;
 	}
 	if (num_threads() == 0) {
@@ -148,7 +148,7 @@ bool image_writer_thread_pool::save_texture_image_needing_resource_barrier_copy(
 	queue_item_image2write *qume = new queue_item_image2write(image_writers,
 		output_filepath_creates_outdir_if_needed(base_filename));
 	if (!qume) {
-		reshade::log_message(1, "failed to allocate new queue entry");
+		reshade::log_message(reshade::log_level::error, "failed to allocate new queue entry");
 		return false;
 	}
 	if (!copy_texture_image_needing_resource_barrier_into_packedbuf(

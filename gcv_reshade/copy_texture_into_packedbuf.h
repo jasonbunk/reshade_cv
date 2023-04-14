@@ -13,7 +13,7 @@ struct depth_tex_settings {
 	bool alreadyfloat = false;
 	bool float_reverse_endian = false;
 	bool debug_mode = false;
-	bool more_verbose = true;
+	bool more_verbose = false;
 };
 
 bool copy_texture_image_needing_resource_barrier_into_packedbuf(

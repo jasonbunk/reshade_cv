@@ -1,8 +1,7 @@
 // Copyright (C) 2022 Jason Bunk
 #include "log_queue_thread_safe.h"
-#include <reshade.hpp>
 
-void logqueue::enqueue(int loglevel, const std::string& pstr) {
+void logqueue::enqueue(reshade::log_level loglevel, const std::string& pstr) {
 	logqueueitem* lqi = new logqueueitem(loglevel, pstr);
 	errlogqueue.enqueue(lqi);
 }

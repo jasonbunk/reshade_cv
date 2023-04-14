@@ -4,13 +4,14 @@
 #include "generic_depth_struct.h"
 #include "gcv_games/game_interface_factory.h"
 #include "gcv_utils/miscutils.h"
+#include "render_target_stats/render_target_stats_tracking.hpp"
 #include <fstream>
 typedef std::chrono::steady_clock hiresclock;
 
 static void on_init(reshade::api::device* device)
 {
 	image_writer_thread_pool &shdata = device->create_private_data<image_writer_thread_pool>();
-	reshade::log_message(3, std::string(std::string("tests: ")+run_utils_tests()).c_str());
+	reshade::log_message(reshade::log_level::info, std::string(std::string("tests: ")+run_utils_tests()).c_str());
 	shdata.init_time = hiresclock::now();
 }
 static void on_destroy(reshade::api::device* device)
@@ -42,7 +43,7 @@ static void on_reshade_finish_effects(reshade::api::effect_runtime *runtime,
 		capmessage << "capture " << basefilen << ": ";
 		bool capgood = true;
 
-		if (shdata.get_camera_matrix(gamecam, errstr, microseconds_elapsed)) {
+		if (shdata.get_camera_matrix(gamecam, errstr)) {
 			std::ofstream outjson(shdata.output_filepath_creates_outdir_if_needed(basefilen + std::string("camera.json")));
 			if (outjson.is_open() && outjson.good()) {
 				nlohmann::json camj = gamecam.as_json();
@@ -84,7 +85,7 @@ static void on_reshade_finish_effects(reshade::api::effect_runtime *runtime,
 			capmessage << ", " << errstr;
 			errstr.clear();
 		}
-		reshade::log_message(capgood ? 3 : 1, capmessage.str().c_str());
+		reshade::log_message(capgood ? reshade::log_level::info : reshade::log_level::error, capmessage.str().c_str());
 	}
 
 	if(shdata.grabcamcoords) {
@@ -123,14 +124,16 @@ static void on_reshade_finish_effects(reshade::api::effect_runtime *runtime,
 static void draw_settings_overlay(reshade::api::effect_runtime *runtime)
 {
 	image_writer_thread_pool &shdata = runtime->get_device()->get_private_data<image_writer_thread_pool>();
-	ImGui::Checkbox("Depth map: debug mode", &shdata.depth_settings.debug_mode);
 	ImGui::Checkbox("Depth map: verbose mode", &shdata.depth_settings.more_verbose);
-	ImGui::Checkbox("Depth map: already float?", &shdata.depth_settings.alreadyfloat);
-	ImGui::Checkbox("Depth map: float endian flip?", &shdata.depth_settings.float_reverse_endian);
+	if (shdata.depth_settings.more_verbose) {
+		ImGui::Checkbox("Depth map: debug mode", &shdata.depth_settings.debug_mode);
+		ImGui::Checkbox("Depth map: already float?", &shdata.depth_settings.alreadyfloat);
+		ImGui::Checkbox("Depth map: float endian flip?", &shdata.depth_settings.float_reverse_endian);
+		ImGui::SliderInt("Depth map: row pitch rescale (powers of 2)", &shdata.depth_settings.adjustpitchhack, -8, 8);
+		ImGui::SliderInt("Depth map: bytes per pix", &shdata.depth_settings.depthbytes, 0, 8);
+		ImGui::SliderInt("Depth map: bytes per pix to keep", &shdata.depth_settings.depthbyteskeep, 0, 8);
+	}
 	ImGui::Checkbox("Grab camera coordinates every frame?", &shdata.grabcamcoords);
-	ImGui::SliderInt("Depth map: row pitch rescale (powers of 2)", &shdata.depth_settings.adjustpitchhack, -8, 8);
-	ImGui::SliderInt("Depth map: bytes per pix", &shdata.depth_settings.depthbytes, 0, 8);
-	ImGui::SliderInt("Depth map: bytes per pix to keep", &shdata.depth_settings.depthbyteskeep, 0, 8);
 	if (shdata.grabcamcoords) {
 		CamMatrixData lcam; std::string errstr;
 		if (shdata.get_camera_matrix(lcam, errstr) != CamMatrix_Uninitialized) {
@@ -142,6 +145,8 @@ static void draw_settings_overlay(reshade::api::effect_runtime *runtime)
 			ImGui::Text(errstr.c_str());
 		}
 	}
+	ImGui::Text("Render targets:");
+	imgui_draw_rgb_render_target_stats_in_reshade_overlay(runtime);
 }
 
 extern "C" __declspec(dllexport) const char *NAME = "CV Capture";
@@ -155,12 +160,14 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID)
 	case DLL_PROCESS_ATTACH:
 		if (!reshade::register_addon(hinstDLL))
 			return FALSE;
+		register_rgb_render_target_stats_tracking();
 		reshade::register_event<reshade::addon_event::init_device>(on_init);
 		reshade::register_event<reshade::addon_event::destroy_device>(on_destroy);
 		reshade::register_event<reshade::addon_event::reshade_finish_effects>(on_reshade_finish_effects);
 		reshade::register_overlay(nullptr, draw_settings_overlay);
 		break;
 	case DLL_PROCESS_DETACH:
+		unregister_rgb_render_target_stats_tracking();
 		reshade::unregister_addon(hinstDLL);
 		break;
 	}

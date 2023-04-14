@@ -91,6 +91,9 @@
     <ClCompile Include="..\gcv_utils\log_queue_thread_safe.cpp">
       <Filter>gcv_utils</Filter>
     </ClCompile>
+    <ClCompile Include="..\render_target_stats\render_target_stats_tracking.cpp">
+      <Filter>render_target_stats</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\3rdparty\concurrentqueue.h">
@@ -219,6 +222,15 @@
     <ClInclude Include="..\gcv_utils\log_queue_thread_safe.h">
       <Filter>gcv_utils</Filter>
     </ClInclude>
+    <ClInclude Include="..\render_target_stats\reshade_tex_format_info.hpp">
+      <Filter>render_target_stats</Filter>
+    </ClInclude>
+    <ClInclude Include="..\render_target_stats\clicked_rgb_rendertargets.hpp">
+      <Filter>render_target_stats</Filter>
+    </ClInclude>
+    <ClInclude Include="..\render_target_stats\render_target_stats_tracking.hpp">
+      <Filter>render_target_stats</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="3rdparty">
@@ -235,6 +247,9 @@
     </Filter>
     <Filter Include="3rdparty\fpzip">
       <UniqueIdentifier>{ebc3f676-9632-4fca-8cca-3435a5c9d072}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="render_target_stats">
+      <UniqueIdentifier>{e2e079b4-4823-4c43-8a94-bc584530c9d8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
