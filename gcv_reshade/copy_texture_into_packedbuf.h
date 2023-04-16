@@ -16,7 +16,13 @@ struct depth_tex_settings {
 	bool more_verbose = false;
 };
 
+enum TextureInterpretation {
+	TexInterp_RGB = 0,
+	TexInterp_Depth,
+	TexInterp_IndexedSeg,
+};
+
 bool copy_texture_image_needing_resource_barrier_into_packedbuf(
 	GameInterface *gamehandle, simple_packed_buf &dstBuf,
 	reshade::api::command_queue* queue, reshade::api::resource tex,
-	bool isdepth, const depth_tex_settings &debug_settings);
+	TextureInterpretation tex_interp, const depth_tex_settings &debug_settings);

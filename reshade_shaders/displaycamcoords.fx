@@ -17,7 +17,7 @@ uniform int dispcam_precision < __UNIFORM_SLIDER_INT1
 
 
 #include "ReShade.fxh"
-#include "DrawText.fxh"
+#include "DrawText2.fxh"
 
 uniform float4 dispcam_latestcampos;
 uniform float4 dispcam_latestcamcol0;

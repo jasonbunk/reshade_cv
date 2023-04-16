@@ -5,6 +5,8 @@
 #include "gcv_games/game_interface_factory.h"
 #include "gcv_utils/miscutils.h"
 #include "render_target_stats/render_target_stats_tracking.hpp"
+#include "segmentation/reshade_hooks.hpp"
+#include "segmentation/segmentation_app_data.hpp"
 #include <fstream>
 typedef std::chrono::steady_clock hiresclock;
 
@@ -29,11 +31,13 @@ static void on_reshade_finish_effects(reshade::api::effect_runtime *runtime,
 	std::string errstr;
 	bool shaderupdatedwithcampos = false;
 	float shadercamposbuf[4];
+	reshade::api::device* const device = runtime->get_device();
+	auto& segmapp = device->get_private_data<segmentation_app_data>();
 
-	if (runtime->is_key_pressed(VK_F11))
+	// returns true if frame capture requested
+	if (segmentation_app_update_on_finish_effects(runtime, runtime->is_key_pressed(VK_F11)))
 	{
 		generic_depth_data &genericdepdata = runtime->get_private_data<generic_depth_data>();
-		reshade::api::device *const device = runtime->get_device();
 		reshade::api::command_queue *cmdqueue = runtime->get_command_queue();
 		const int64_t microseconds_elapsed = std::chrono::duration_cast<std::chrono::microseconds>(hiresclock::now() - shdata.init_time).count();
 		const std::string microelapsedstr = std::to_string(microseconds_elapsed);
@@ -42,19 +46,29 @@ static void on_reshade_finish_effects(reshade::api::effect_runtime *runtime,
 		std::stringstream capmessage;
 		capmessage << "capture " << basefilen << ": ";
 		bool capgood = true;
+		nlohmann::json metajson;
 
-		if (shdata.get_camera_matrix(gamecam, errstr)) {
-			std::ofstream outjson(shdata.output_filepath_creates_outdir_if_needed(basefilen + std::string("camera.json")));
-			if (outjson.is_open() && outjson.good()) {
-				nlohmann::json camj = gamecam.as_json();
-				camj["time_us"] = microelapsedstr;
-				outjson << camj.dump() << std::endl;
-				outjson.close();
-				capmessage << "camjson: good";
+		if(shdata.depth_settings.more_verbose || shdata.depth_settings.debug_mode) {
+			if (shdata.save_texture_image_needing_resource_barrier_copy(basefilen + std::string("semsegrawbuffer"),
+					ImageWriter_STB_png, cmdqueue, segmapp.r_accum_bonus.rsc, TexInterp_IndexedSeg)) {
+				capmessage << "semsegrawbuffer good; ";
 			} else {
-				capmessage << "camjson: failed to write";
+				capmessage << "semsegrawbuffer failed; ";
 				capgood = false;
 			}
+		}
+
+		if (shdata.save_segmentation_app_indexed_image_needing_resource_barrier_copy(
+				basefilen + std::string("semseg"), cmdqueue, metajson)) {
+			capmessage << "semseg good; ";
+		} else {
+			capmessage << "semseg failed; ";
+			capgood = false;
+		}
+
+		if (shdata.get_camera_matrix(gamecam, errstr)) {
+			gamecam.into_json(metajson);
+			metajson["time_us"] = microelapsedstr;
 		} else {
 			capmessage << "camjson: failed to get any camera data";
 			capgood = false;
@@ -65,12 +79,24 @@ static void on_reshade_finish_effects(reshade::api::effect_runtime *runtime,
 		}
 		capmessage << "; ";
 
+		if (!metajson.empty()) {
+			std::ofstream outjson(shdata.output_filepath_creates_outdir_if_needed(basefilen + std::string("meta.json")));
+			if (outjson.is_open() && outjson.good()) {
+				outjson << metajson.dump() << std::endl;
+				outjson.close();
+				capmessage << "metajson: good; ";
+			} else {
+				capmessage << "metajson: failed to write; ";
+				capgood = false;
+			}
+		}
+
 		if (shdata.save_texture_image_needing_resource_barrier_copy(basefilen + std::string("RGB"),
-			ImageWriter_STB_png, cmdqueue, device->get_resource_from_view(rtv), false))
+			ImageWriter_STB_png, cmdqueue, device->get_resource_from_view(rtv), TexInterp_RGB))
 		{
 			if (shdata.save_texture_image_needing_resource_barrier_copy(basefilen + std::string("depth"),
 				ImageWriter_STB_png | ImageWriter_numpy | (shdata.game_knows_depthbuffer() ? ImageWriter_fpzip : 0),
-				cmdqueue, genericdepdata.selected_depth_stencil, true))
+				cmdqueue, genericdepdata.selected_depth_stencil, TexInterp_Depth))
 			{
 				capmessage << "RGB and depth good";
 			} else {
@@ -119,6 +145,7 @@ static void on_reshade_finish_effects(reshade::api::effect_runtime *runtime,
 		shdata.camcoordsinitialized = true;
 	}
 	shdata.print_waiting_log_messages();
+	segmapp.r_counter_buf.reset_at_end_of_frame();
 }
 
 static void draw_settings_overlay(reshade::api::effect_runtime *runtime)
@@ -147,6 +174,7 @@ static void draw_settings_overlay(reshade::api::effect_runtime *runtime)
 	}
 	ImGui::Text("Render targets:");
 	imgui_draw_rgb_render_target_stats_in_reshade_overlay(runtime);
+	imgui_draw_custom_shader_debug_viz_in_reshade_overlay(runtime);
 }
 
 extern "C" __declspec(dllexport) const char *NAME = "CV Capture";
@@ -161,12 +189,18 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID)
 		if (!reshade::register_addon(hinstDLL))
 			return FALSE;
 		register_rgb_render_target_stats_tracking();
+		register_segmentation_app_hooks();
 		reshade::register_event<reshade::addon_event::init_device>(on_init);
 		reshade::register_event<reshade::addon_event::destroy_device>(on_destroy);
 		reshade::register_event<reshade::addon_event::reshade_finish_effects>(on_reshade_finish_effects);
 		reshade::register_overlay(nullptr, draw_settings_overlay);
 		break;
 	case DLL_PROCESS_DETACH:
+		reshade::unregister_event<reshade::addon_event::init_device>(on_init);
+		reshade::unregister_event<reshade::addon_event::destroy_device>(on_destroy);
+		reshade::unregister_event<reshade::addon_event::reshade_finish_effects>(on_reshade_finish_effects);
+		reshade::unregister_overlay(nullptr, draw_settings_overlay);
+		unregister_segmentation_app_hooks();
 		unregister_rgb_render_target_stats_tracking();
 		reshade::unregister_addon(hinstDLL);
 		break;

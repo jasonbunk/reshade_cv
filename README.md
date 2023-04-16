@@ -1,18 +1,28 @@
-# 3D datasets from games - Get NeRFs, RGBD, & point clouds
-Plugin for [reshade](https://github.com/crosire/reshade) which you can drop into any game and save RGBD (color+depth) screenshots!
+# DNN datasets from games - NeRF, RGBD, point clouds, semantic segmentation
+Plugin for [reshade](https://github.com/crosire/reshade) which you can drop into any game and get some training data!
 
-For supported games, the camera transformation matrix can be extracted, which can be [directly converted](python_threedee/convert_game_snapshot_jsons_to_nerf_transformsjson.py) to "transforms.json" for NeRF.
-Also for some games, the depth buffer can be converted from uint32 to a physical distance, which helps produce realistic RGBD images or point clouds.
+Supported data varies for each game, but a goal is to support lots of games, because DNNs are data hungry!
 
-This 3D data can be used to generate ground truth for 3D DNNs, for example SLAM datasets.
+Example applications include SLAM, monocular depth, or semantic segmentation. Monocular depth has the broadest support across games thanks to Reshade's depth buffer detection.
 
-### TODOs
-* **Documentation, tutorial**
-* Camera data from more games
-* **Point cloud tool**: using calibrated depth map, extrinsic & intrinsic matrix from supported games.
-* Tool to move camera/player to systematically scan large areas to create a synthetic dataset for "Block-NeRF"/"Mega-NeRF"
+## Semantic Segmentation Support
 
-### Supported games
+Semantic segmentation is tricky, and currently only DirectX 10 and 11 games are supported. Currently, an effort for each game needs to be undertaken to map mesh/shader IDs to semantic categories of interest. Once a game is sufficiently mapped, large amounts of training data could be gathered from that game. A semi-automated tool is needed here to bootstrap off of an existing detector (e.g. a COCO segmentation DNN).
+
+Note: *Instance* segmentation is not really working right now: instance IDs are extracted, but many objects are drawn in parts, so something would be needed to associate e.g. a car's wheels to its body.
+
+Games I've tested that seem to work include The Witcher 3, Crysis, Control, and Dishonored: DOTO.
+
+In some games, some objects may currently be missing (not segmented): for example Fallout 4 and Shadow of the Tomb Raider.
+
+|Game API|Semantic Segmentation?|
+|--------|----------------------|
+|DirectX 10|Yes for many games|
+|DirectX 11|Yes for many games|
+|DirectX 12|Not (yet?) supported|
+|Vulkan/OpenGL|Not (yet?) supported|
+
+## 3D support (NeRF / point cloud)
 
 For most games not in this list (games supported by ReShade), the depth buffer should be capturable, which could be used to build monocular depth datasets.
 
@@ -24,35 +34,50 @@ For most games not in this list (games supported by ReShade), the depth buffer s
 |Resident Evil (RE2R, RE3R)|Yes|Yes|
 |Witcher 3|Yes|Yes|
 
-### Sample data
-Sample data computed using the camera matrix extracted from the game.
-For NeRFs this data can be directly saved as transforms.json (no COLMAP since we have the ground truth!):
+### TODOs
+Useful functionality is currently working, but this is a work in progress.
 
-#### Cyberpunk 2077
+* Documentation, tutorial
+* Camera data from more games
+* Point cloud python script: using calibrated depth map, extrinsic & intrinsic matrix from supported games.
+* Segmentation tool to help map mesh/shader IDs to a semantic category schema such as COCO.
+* Tool to move camera/player to systematically scan large areas to create big datasets.
+
+## Examples
+
+NeRFs below were computed using the camera matrix extracted from the game, directly saved as transforms.json (no COLMAP since we have ground truth!).
+
+### Semantic Segmentation samples
+
+
+### Cyberpunk 2077 NeRF
 ![cyberpunk_nerf](https://user-images.githubusercontent.com/6532938/212845074-bf320377-5b56-429f-b47a-eb2238f684a2.gif)
 [![Cyberpunk Point Cloud](https://img.youtube.com/vi/E-JLTHHH_pk/0.jpg)](https://youtu.be/E-JLTHHH_pk)
 
-#### Horizon Zero Dawn
+### Horizon Zero Dawn NeRF
 [![HZD NeRF](https://img.youtube.com/vi/7MRoxrtSn0k/0.jpg)](https://youtu.be/7MRoxrtSn0k)
 
 # Build notes
 
 I use Visual Studio 2022, with dependencies installed via vcpkg target ``x64-windows``.
 
-[ReShade 5.6.0](https://github.com/crosire/reshade) is downloaded and placed alongside this repo folder in `..\reshade-5.6.0`
+[ReShade 5.8.0](https://github.com/crosire/reshade) is downloaded and placed alongside this repo folder in `..\reshade-5.8.0`
 
 vcpkg dependencies:
 
 * [`eigen3`](https://eigen.tuxfamily.org/) License: MPL2.
 * [`nlohmann-json`](https://github.com/nlohmann/json) License: MIT.
+* [`xxhash`](https://github.com/Cyan4973/xxHash) License: BSD-2.
 
 ## Installation
 
-After using vcpkg to install the dependencies, build this with Visual Studio.
+Use vcpkg to install the dependencies.
 
-For some games, I use a mod plugin to read the camera matrix. Check the `mod_scripts` folder in this repo for a script for your game; it should have some comments to help lead you to installing for that game.
+For semantic segmentation, I use part of [`RenderDoc`](https://github.com/baldurk/renderdoc) (License: MIT), which can be built as a static library and linked to this project. For this to work, you need to ``#define`` some variables including ``RENDERDOC_FOR_SHADERS;RENDERDOC_EXPORTS;RENDERDOC_PLATFORM_WIN32``. Real time visualization of the segmentation map is provided by the reshade shader ``reshade_shaders/segmentation_visualization.fx``.
 
-Visual studio produces a *.addon for ReShade; that should be copied to your game folder (alongside ReShade.log and the game executable).
+For some games, I use a mod plugin to read the camera matrix. Check the `mod_scripts` folder in this repo for a script for supported games; it should have some comments to help lead you to installing for that game.
+
+Visual studio produces a *.addon for ReShade; that should be copied to your game folder (alongside the game executable and ReShade.log).
 
 ## Other software included in this repo
 

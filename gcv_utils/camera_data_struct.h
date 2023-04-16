@@ -17,5 +17,5 @@ struct CamMatrixData {
 	ftype fov_v_degrees = ftype(-9999.0);
 	ftype fov_h_degrees = ftype(-9999.0);
 	bool intrinsic_status() const { return fov_v_degrees > ftype(0.0) || fov_h_degrees > ftype(0.0); }
-	nlohmann::json as_json() const;
+	void into_json(nlohmann::json & rj) const;
 };

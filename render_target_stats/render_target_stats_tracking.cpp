@@ -125,7 +125,7 @@ static void on_reshade_finish_effects(effect_runtime* runtime, command_list* cmd
 	}
 	// Remove stale buffers that haven't been drawn to in a while
 	for (auto mit = mapp.resource2lastseenframeidx.cbegin(); mit != mapp.resource2lastseenframeidx.cend(); ) {
-		if (mapp.frameidx - mit->second > 30) {
+		if (mapp.frameidx - mit->second > 9) {
 			mapp.resource2stats.erase(mit->first);
 			mit = mapp.resource2lastseenframeidx.erase(mit);
 		} else {
@@ -230,7 +230,7 @@ void register_rgb_render_target_stats_tracking() {
 	reshade::register_event<reshade::addon_event::reshade_finish_effects>(on_reshade_finish_effects);
 	reshade::register_event<reshade::addon_event::present>(on_present);
 
-	//reshade::register_overlay(nullptr, imgui_draw_stats_in_reshade_overlay);
+	//reshade::register_overlay(nullptr, imgui_draw_rgb_render_target_stats_in_reshade_overlay);
 }
 
 void unregister_rgb_render_target_stats_tracking() {

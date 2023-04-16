@@ -94,6 +94,18 @@
     <ClCompile Include="..\render_target_stats\render_target_stats_tracking.cpp">
       <Filter>render_target_stats</Filter>
     </ClCompile>
+    <ClCompile Include="..\segmentation\customize_dxbc.cpp">
+      <Filter>segmentation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\segmentation\semseg_shader_register_bind.cpp">
+      <Filter>segmentation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\segmentation\reshade_hooks.cpp">
+      <Filter>segmentation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\segmentation\buffer_indexing_colorization.cpp">
+      <Filter>segmentation</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\3rdparty\concurrentqueue.h">
@@ -231,6 +243,42 @@
     <ClInclude Include="..\render_target_stats\render_target_stats_tracking.hpp">
       <Filter>render_target_stats</Filter>
     </ClInclude>
+    <ClInclude Include="..\segmentation\semseg_shader_register_bind.hpp">
+      <Filter>segmentation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\segmentation\custom_shader_layout_registers.hpp">
+      <Filter>segmentation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\segmentation\customize_dxbc.hpp">
+      <Filter>segmentation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\segmentation\rdoc_utils.hpp">
+      <Filter>segmentation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\segmentation\rt_resource.hpp">
+      <Filter>segmentation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\segmentation\segmentation_app_data.hpp">
+      <Filter>segmentation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\segmentation\draws_counting_data_buffer.hpp">
+      <Filter>segmentation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\segmentation\reshade_hooks.hpp">
+      <Filter>segmentation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\segmentation\command_list_state.hpp">
+      <Filter>segmentation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\segmentation\buffer_indexing_colorization.hpp">
+      <Filter>segmentation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gcv_utils\typed_2d_array.hpp">
+      <Filter>gcv_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\segmentation\shader_types.hpp">
+      <Filter>segmentation</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="3rdparty">
@@ -250,6 +298,9 @@
     </Filter>
     <Filter Include="render_target_stats">
       <UniqueIdentifier>{e2e079b4-4823-4c43-8a94-bc584530c9d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="segmentation">
+      <UniqueIdentifier>{26bb8fa0-931a-41b3-918d-08901c0e2f83}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

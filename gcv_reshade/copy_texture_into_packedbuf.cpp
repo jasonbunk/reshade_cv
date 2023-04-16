@@ -7,6 +7,7 @@
 #include <reshade.hpp>
 #include "copy_texture_into_packedbuf.h"
 #include "tex_buffer_utils.h"
+#include "xxhash.h"
 
 using namespace reshade::api;
 
@@ -55,7 +56,7 @@ void depth_gray_bytesLE_to_f32(simple_packed_buf &dstBuf, const resource_desc &d
 		}
 	}
 	uint8_t *src_p = static_cast<uint8_t *>(data.data);
-	if (!gamehandle_can_interpret_depth) {
+	if (!gamehandle_can_interpret_depth && !settings.debug_mode) {
 		dstBuf.pixfmt = BUF_PIX_FMT_GRAYU32;
 	}
 	constexpr uint64_t clipu32 = static_cast<uint64_t>(std::numeric_limits<uint32_t>::max());
@@ -67,10 +68,10 @@ void depth_gray_bytesLE_to_f32(simple_packed_buf &dstBuf, const resource_desc &d
 	uint8_t endianflip[8];
 	uint64_t vi;
 	size_t x, y, z;
-	double vf;
 	for (y = 0; y < desc.texture.height; ++y, src_p += rowpitch) {
 		dstfp = dstBuf.rowptr<float>(y);
 		dstup = dstBuf.rowptr<uint32_t>(y);
+		if (dstfp == nullptr || dstup == nullptr) continue;
 		if (!settings.debug_mode) {
 			if (!settings.alreadyfloat) {
 				for (x = 0; x < desc.texture.width; ++x) {
@@ -121,7 +122,7 @@ void depth_gray_bytesLE_to_f32(simple_packed_buf &dstBuf, const resource_desc &d
 bool copy_texture_image_given_ready_resource_into_packedbuf(
 	GameInterface *gamehandle, simple_packed_buf &dstBuf,
 	const resource_desc &desc, const subresource_data &data,\
-	bool isdepth, const depth_tex_settings& depth_settings)
+	TextureInterpretation tex_interp, const depth_tex_settings& depth_settings)
 {
 	dstBuf.width = desc.texture.width;
 	dstBuf.height = desc.texture.height;
@@ -131,7 +132,7 @@ bool copy_texture_image_given_ready_resource_into_packedbuf(
 	switch (desc.texture.format)
 	{
 	case format::l8_unorm:
-		if (!dstBuf.set_pixfmt_and_alloc_bytes(BUF_PIX_FMT_RGBA)) return false;
+		if (!dstBuf.set_pixfmt_and_alloc_bytes(BUF_PIX_FMT_RGB24)) return false;
 		for (size_t y = 0; y < desc.texture.height; ++y, data_p += data.row_pitch)
 		{
 			for (size_t x = 0; x < desc.texture.width; ++x)
@@ -142,7 +143,6 @@ bool copy_texture_image_given_ready_resource_into_packedbuf(
 				dst[0] = src[0];
 				dst[1] = src[0];
 				dst[2] = src[0];
-				dst[3] = 255;
 			}
 		}
 		break;
@@ -165,7 +165,7 @@ bool copy_texture_image_given_ready_resource_into_packedbuf(
 	case format::r8_typeless:
 	case format::r8_unorm:
 	case format::r8_snorm:
-		if (!dstBuf.set_pixfmt_and_alloc_bytes(BUF_PIX_FMT_RGBA)) return false;
+		if (!dstBuf.set_pixfmt_and_alloc_bytes(BUF_PIX_FMT_RGB24)) return false;
 		for (size_t y = 0; y < desc.texture.height; ++y, data_p += data.row_pitch)
 		{
 			for (size_t x = 0; x < desc.texture.width; ++x)
@@ -176,7 +176,6 @@ bool copy_texture_image_given_ready_resource_into_packedbuf(
 				dst[0] = src[0];
 				dst[1] = 0;
 				dst[2] = 0;
-				dst[3] = 255;
 			}
 		}
 		break;
@@ -199,7 +198,7 @@ bool copy_texture_image_given_ready_resource_into_packedbuf(
 	case format::r8g8_typeless:
 	case format::r8g8_unorm:
 	case format::r8g8_snorm:
-		if (!dstBuf.set_pixfmt_and_alloc_bytes(BUF_PIX_FMT_RGBA)) return false;
+		if (!dstBuf.set_pixfmt_and_alloc_bytes(BUF_PIX_FMT_RGB24)) return false;
 		for (size_t y = 0; y < desc.texture.height; ++y, data_p += data.row_pitch)
 		{
 			for (size_t x = 0; x < desc.texture.width; ++x)
@@ -210,7 +209,6 @@ bool copy_texture_image_given_ready_resource_into_packedbuf(
 				dst[0] = src[0];
 				dst[1] = src[1];
 				dst[2] = 0;
-				dst[3] = 255;
 			}
 		}
 		break;
@@ -231,7 +229,7 @@ bool copy_texture_image_given_ready_resource_into_packedbuf(
 				dst[0] = src[0];
 				dst[1] = src[1];
 				dst[2] = src[2];
-				dst[3] = isdepth ? src[3] : 255;
+				dst[3] = (tex_interp == TexInterp_RGB) ? 255 : src[3];
 			}
 		}
 		break;
@@ -253,13 +251,13 @@ bool copy_texture_image_given_ready_resource_into_packedbuf(
 				dst[0] = src[2];
 				dst[1] = src[1];
 				dst[2] = src[0];
-				dst[3] = isdepth ? src[3] : 255;
+				dst[3] = (tex_interp == TexInterp_RGB) ? 255 : src[3];
 			}
 		}
 		break;
 	case format::r10g10b10a2_uint: case format::b10g10r10a2_uint:
 	case format::r10g10b10a2_unorm: case format::b10g10r10a2_unorm:
-		if (!dstBuf.set_pixfmt_and_alloc_bytes(BUF_PIX_FMT_RGBA)) return false;
+		if (!dstBuf.set_pixfmt_and_alloc_bytes(BUF_PIX_FMT_RGB24)) return false;
 		for (size_t y = 0; y < desc.texture.height; ++y, data_p += data.row_pitch)
 		{
 			for (size_t x = 0; x < desc.texture.width; ++x)
@@ -267,7 +265,6 @@ bool copy_texture_image_given_ready_resource_into_packedbuf(
 				const uint32_t* const src = reinterpret_cast<uint32_t*>(data_p + x * 4);
 				uint8_t* const dst = dstBuf.entryptr<uint8_t>(y, x);
 				r10g10b10a2_to_r8g8b8(*src, dst);
-				dst[3] = 255;
 			}
 		}
 		break;
@@ -296,18 +293,46 @@ bool copy_texture_image_given_ready_resource_into_packedbuf(
 		bc5_block_copy(dstBuf, desc, data);
 		break;
 	case format::r24_unorm_x8_uint:
-	case format::r24_g8_typeless: // crysis depth: "DXGI_FORMAT_R24G8_TYPELESS: A two-component, 32-bit typeless format that supports 24 bits for the red channel and 8 bits for the green channel."
-		if (!isdepth || !dstBuf.set_pixfmt_and_alloc_bytes(BUF_PIX_FMT_GRAYF32)) return false;
+	case format::r24_g8_typeless: // "DXGI_FORMAT_R24G8_TYPELESS: A two-component, 32-bit typeless format that supports 24 bits for the red channel and 8 bits for the green channel."
+		if (tex_interp != TexInterp_Depth || !dstBuf.set_pixfmt_and_alloc_bytes(BUF_PIX_FMT_GRAYF32)) return false;
 		depth_gray_bytesLE_to_f32(dstBuf, desc, data, 0, 3, 0, gamehandle, depth_settings);
 		break;
 	case format::r32_g8_typeless: // "DXGI_FORMAT_R32G8X24_TYPELESS: A two-component, 64-bit typeless format that supports 32 bits for the red channel, 8 bits for the green channel, and 24 bits are unused."
-		if (!isdepth || !dstBuf.set_pixfmt_and_alloc_bytes(BUF_PIX_FMT_GRAYF32)) return false;
-		depth_gray_bytesLE_to_f32(dstBuf, desc, data, 4, 4, -1, gamehandle, depth_settings);
+	case format::r32_float_x8_uint:
+		if (tex_interp != TexInterp_Depth || !dstBuf.set_pixfmt_and_alloc_bytes(BUF_PIX_FMT_GRAYF32)) return false;
+		depth_gray_bytesLE_to_f32(dstBuf, desc, data, 8, 4, 0, gamehandle, depth_settings);
 		break;
 	case format::r32_float:
-	case format::r32_typeless: // Control depth
-		if (!isdepth || !dstBuf.set_pixfmt_and_alloc_bytes(BUF_PIX_FMT_GRAYF32)) return false;
+	case format::r32_typeless:
+		if (!dstBuf.set_pixfmt_and_alloc_bytes(BUF_PIX_FMT_GRAYF32)) return false;
 		depth_gray_bytesLE_to_f32(dstBuf, desc, data, 0, 4, 0, gamehandle, depth_settings);
+		break;
+	case format::r32g32b32a32_uint:
+		if (tex_interp != TexInterp_IndexedSeg) return false;
+		dstBuf.width *= 2;
+		dstBuf.height *= 2;
+		if (!dstBuf.set_pixfmt_and_alloc_bytes(BUF_PIX_FMT_RGB24)) {
+			return false;
+		} else {
+			uint32_t seg_idx_color;
+			uint8_t *const hash_color_channels = reinterpret_cast<uint8_t*>(&seg_idx_color);
+			size_t chC = 0;
+			for (size_t chY = 0; chY < 2; ++chY) {
+				for (size_t chX = 0; chX < 2; ++chX) {
+					data_p = static_cast<uint8_t*>(data.data);
+					for (size_t y = 0; y < desc.texture.height; ++y, data_p += data.row_pitch) {
+						for (size_t x = 0; x < desc.texture.width; ++x) {
+							seg_idx_color = XXH32(data_p + x * 16 + chC*4, 4, 0);
+							uint8_t* const dst = dstBuf.entryptr<uint8_t>(y + chY*desc.texture.height, x + chX*desc.texture.width);
+							dst[0] = hash_color_channels[0];
+							dst[1] = hash_color_channels[1];
+							dst[2] = hash_color_channels[2];
+						}
+					}
+					chC++;
+				}
+			}
+		}
 		break;
 	default: {
 		// Unsupported format
@@ -327,7 +352,7 @@ bool copy_texture_image_given_ready_resource_into_packedbuf(
 bool copy_texture_image_needing_resource_barrier_into_packedbuf(
 	GameInterface *gamehandle, simple_packed_buf &dstBuf,
 	reshade::api::command_queue *queue, reshade::api::resource tex,
-	bool isdepth, const depth_tex_settings &depth_settings)
+	TextureInterpretation tex_interp, const depth_tex_settings &depth_settings)
 {
 	device *const device = queue->get_device();
 	resource_desc desc = device->get_resource_desc(tex);
@@ -345,7 +370,8 @@ bool copy_texture_image_needing_resource_barrier_into_packedbuf(
 			return false;
 		}
 
-		const reshade::api::format dstfmt = (desc.texture.format == reshade::api::format::r32_g8_typeless) ? reshade::api::format::r32_float : format_to_default_typed(desc.texture.format);
+		//const reshade::api::format dstfmt = (desc.texture.format == reshade::api::format::r32_g8_typeless) ? reshade::api::format::r32_float : format_to_default_typed(desc.texture.format);
+		const reshade::api::format dstfmt = format_to_default_typed(desc.texture.format);
 		desc.texture.format = dstfmt;
 
 		if (!device->create_resource(resource_desc(desc.texture.width, desc.texture.height, 1, 1, dstfmt, 1, memory_heap::gpu_to_cpu, resource_usage::copy_dest), nullptr, resource_usage::copy_dest, &intermediate))
@@ -366,7 +392,7 @@ bool copy_texture_image_needing_resource_barrier_into_packedbuf(
 	subresource_data mapped_data = {};
 	if (device->map_texture_region(intermediate, 0, nullptr, map_access::read_only, &mapped_data))
 	{
-		wasok = copy_texture_image_given_ready_resource_into_packedbuf(gamehandle, dstBuf, desc, mapped_data, isdepth, depth_settings);
+		wasok = copy_texture_image_given_ready_resource_into_packedbuf(gamehandle, dstBuf, desc, mapped_data, tex_interp, depth_settings);
 		device->unmap_texture_region(intermediate, 0);
 	} else {
 		reshade::log_message(reshade::log_level::error, "Failed to save texture: mapped_data.data == nullptr");

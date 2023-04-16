@@ -2,6 +2,7 @@
 #include "image_writer_thread_pool.h"
 #include "gcv_utils/miscutils.h"
 #include "gcv_games/game_interface_factory.h"
+#include "segmentation/segmentation_app_data.hpp"
 #include <filesystem>
 using moodycamel::ConcurrentQueue;
 
@@ -134,15 +135,13 @@ bool image_writer_thread_pool::get_camera_matrix(CamMatrixData &rcam, std::strin
 bool image_writer_thread_pool::save_texture_image_needing_resource_barrier_copy(
 	const std::string &base_filename, uint64_t image_writers,
 	reshade::api::command_queue *queue, reshade::api::resource tex,
-	bool isdepth)
+	TextureInterpretation tex_interp)
 {
 	if (tex == 0) {
-		reshade::log_message(reshade::log_level::error, std::string(std::string("depth texture null: failed to save ")+base_filename).c_str());
+		reshade::log_message(reshade::log_level::error, std::string(std::string("texture null: failed to save ")+base_filename).c_str());
 		return false;
 	}
-	if (num_threads() == 0) {
-		change_num_threads(3);
-	}
+	if (num_threads() == 0)	change_num_threads(3);
 	if (num_threads() == 0) return false;
 	init_in_game();
 	queue_item_image2write *qume = new queue_item_image2write(image_writers,
@@ -152,7 +151,32 @@ bool image_writer_thread_pool::save_texture_image_needing_resource_barrier_copy(
 		return false;
 	}
 	if (!copy_texture_image_needing_resource_barrier_into_packedbuf(
-				game, qume->mybuf, queue, tex, isdepth, depth_settings)) {
+				game, qume->mybuf, queue, tex, tex_interp, depth_settings)) {
+		delete qume;
+		return false;
+	}
+	if (!images2writequeue.enqueue(qume)) {
+		delete qume;
+		return false;
+	}
+	return true;
+}
+
+bool image_writer_thread_pool::save_segmentation_app_indexed_image_needing_resource_barrier_copy(
+	const std::string& base_filename, reshade::api::command_queue* queue, nlohmann::json& metajson)
+{
+	if (num_threads() == 0) change_num_threads(3);
+	if (num_threads() == 0) return false;
+	init_in_game();
+	queue_item_image2write* qume = new queue_item_image2write(ImageWriter_STB_png,
+		output_filepath_creates_outdir_if_needed(base_filename));
+	if (!qume) {
+		reshade::log_message(reshade::log_level::error, "failed to allocate new queue entry");
+		return false;
+	}
+	auto& segmapp = queue->get_device()->get_private_data<segmentation_app_data>();
+	if (!segmapp.copy_and_index_seg_tex_needing_resource_barrier_into_packedbuf_and_metajson(
+		queue, qume->mybuf, metajson)) {
 		delete qume;
 		return false;
 	}
