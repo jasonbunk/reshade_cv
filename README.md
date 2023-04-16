@@ -49,6 +49,10 @@ NeRFs below were computed using the camera matrix extracted from the game, direc
 
 ### Semantic Segmentation samples
 
+3D semantic segmentation
+![witcher3_3D_segmentation](https://user-images.githubusercontent.com/6532938/232350112-9277bc37-c01f-4832-a106-599092a5b1e8.gif)
+
+![DishonoredDOTO_2023-04-16_681772915_RGB_depth_semseg](https://user-images.githubusercontent.com/6532938/232349914-f988089c-eab4-498e-aeb0-41da440967b0.jpg)
 
 ### Cyberpunk 2077 NeRF
 ![cyberpunk_nerf](https://user-images.githubusercontent.com/6532938/212845074-bf320377-5b56-429f-b47a-eb2238f684a2.gif)
