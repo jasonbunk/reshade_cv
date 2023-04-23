@@ -29,5 +29,5 @@ struct __declspec(uuid("bab8ffb9-5e8b-4b48-b4f2-4bac4bf87e82")) segmentation_app
 
 	// for saving segmentation results to disk
 	bool copy_and_index_seg_tex_needing_resource_barrier_into_packedbuf_and_metajson(
-		reshade::api::command_queue* queue, simple_packed_buf& dstBuf, nlohmann::json& dstMetaJson);
+		reshade::api::command_queue* queue, simple_packed_buf& segBuf, simple_packed_buf& triBuf, nlohmann::json& dstMetaJson);
 };

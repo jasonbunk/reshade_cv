@@ -13,6 +13,7 @@ enum ColorizationVizMode : uint32_t {
 	CVM_BufChannel2,
 	CVM_FullMetaHash,
 	CVM_ShaderIDs,
+	CVM_PrimitiveHash,
 	CVM_number_of_modes,
 };
 constexpr const char* ColorizationVizModeNames[] = {
@@ -21,6 +22,7 @@ constexpr const char* ColorizationVizModeNames[] = {
 	"buf[2]",
 	"full_meta_hash",
 	"shader_ids",
+	"triangle",
 };
 
 struct segmentation_app_buffer_indexing_colorization

@@ -165,23 +165,25 @@ bool customize_dxbc(bool b_truepixel_falsevertex, const device_api graphics_api,
 
 	if (!b_truepixel_falsevertex) {
 		// vertex shader : may not need input or output register(s) if was already tracking SV_InstanceID... SM40/DX10 said it's okay to repeat, but IDK about SM51+ or DX11+
+		const int new_shader_out_reg = std::max(num_decl_outputs, 15);
 
 		// declare new input for SV_InstanceID
 		new_decls.emplace_back(new_decl(DXBCBytecode::OPCODE_DCL_INPUT_SGV, new_operand(DXBCBytecode::TYPE_INPUT, num_decl_inputs).swizzle(0, 0xff, 0xff, 0xff)), DXBCBytecode::OPCODE_DCL_INPUT_SIV);
 		new_decls.back().first.inputOutput.systemValue = DXBC::SVNAME_INSTANCE_ID;
 
 		// declare new output to pass along InstanceID
-		new_decls.emplace_back(new_decl(DXBCBytecode::OPCODE_DCL_OUTPUT, new_operand(DXBCBytecode::TYPE_OUTPUT, num_decl_outputs).swizzle(0, 0xff, 0xff, 0xff)), DXBCBytecode::OPCODE_DCL_OUTPUT_SIV);
+		new_decls.emplace_back(new_decl(DXBCBytecode::OPCODE_DCL_OUTPUT, new_operand(DXBCBytecode::TYPE_OUTPUT, new_shader_out_reg).swizzle(0, 0xff, 0xff, 0xff)), DXBCBytecode::OPCODE_DCL_OUTPUT_SIV);
 
 		// instruction to mov InstanceID from input to output
 		new_insts.push_back(new_op_mov(
-			new_operand(DXBCBytecode::TYPE_OUTPUT, num_decl_outputs).swizzle(0, 0xff, 0xff, 0xff), // swizzle(0,0xff,0xff,0xff) --> FLAG_MASKED   = 32, numComponents = NUMCOMPS_4
-			new_operand(DXBCBytecode::TYPE_INPUT,  num_decl_inputs ).swizzle(0)                    // swizzle(0)                --> FLAG_SELECTED =  8, numComponents = NUMCOMPS_4
+			new_operand(DXBCBytecode::TYPE_OUTPUT, new_shader_out_reg).swizzle(0, 0xff, 0xff, 0xff), // swizzle(0,0xff,0xff,0xff) --> FLAG_MASKED   = 32, numComponents = NUMCOMPS_4
+			new_operand(DXBCBytecode::TYPE_INPUT,  num_decl_inputs ).swizzle(0)                      // swizzle(0)                --> FLAG_SELECTED =  8, numComponents = NUMCOMPS_4
 		));
 
 	}
 	else {
 		// pixel shader
+		const int new_shader_in_reg = std::max(num_decl_inputs, 15);
 
 		// declare my new per-draw buffer resource
 		{
@@ -204,12 +206,12 @@ bool customize_dxbc(bool b_truepixel_falsevertex, const device_api graphics_api,
 		newregisters.perdrawbuf_tex_regH = 0xff; // not used in ps_5_0
 
 		// declare new input for passed along InstanceID, stored in the first component of the new input register
-		new_decls.emplace_back(new_decl(DXBCBytecode::OPCODE_DCL_INPUT_PS, new_operand(DXBCBytecode::TYPE_INPUT, num_decl_inputs).swizzle(0, 0xff, 0xff, 0xff)), DXBCBytecode::OPCODE_DCL_INPUT_PS_SIV);
+		new_decls.emplace_back(new_decl(DXBCBytecode::OPCODE_DCL_INPUT_PS, new_operand(DXBCBytecode::TYPE_INPUT, new_shader_in_reg).swizzle(0, 0xff, 0xff, 0xff)), DXBCBytecode::OPCODE_DCL_INPUT_PS_SIV);
 		new_decls.back().first.inputOutput.inputInterpolation = DXBCBytecode::INTERPOLATION_CONSTANT;
 		new_decls.back().first.inputOutput.systemValue = DXBC::SVNAME_INSTANCE_ID;
 
 		// declare new input for PrimitiveID, stored in the second component of the new input register
-		new_decls.emplace_back(new_decl(DXBCBytecode::OPCODE_DCL_INPUT_PS_SGV, new_operand(DXBCBytecode::TYPE_INPUT, num_decl_inputs).swizzle(1, 0xff, 0xff, 0xff)), DXBCBytecode::OPCODE_DCL_INPUT_PS_SIV);
+		new_decls.emplace_back(new_decl(DXBCBytecode::OPCODE_DCL_INPUT_PS_SGV, new_operand(DXBCBytecode::TYPE_INPUT, new_shader_in_reg).swizzle(1, 0xff, 0xff, 0xff)), DXBCBytecode::OPCODE_DCL_INPUT_PS_SIV);
 		new_decls.back().first.inputOutput.inputInterpolation = DXBCBytecode::INTERPOLATION_CONSTANT;
 		new_decls.back().first.inputOutput.systemValue = DXBC::SVNAME_PRIMITIVE_ID;
 
@@ -246,12 +248,12 @@ bool customize_dxbc(bool b_truepixel_falsevertex, const device_api graphics_api,
 
 		new_insts.push_back(new_op_mov(
 			new_operand(DXBCBytecode::TYPE_OUTPUT, num_decl_outputs).swizzle(1, 0xff, 0xff, 0xff),
-			new_operand(DXBCBytecode::TYPE_INPUT, num_decl_inputs).swizzle(0) // InstanceID: first component of the new input
+			new_operand(DXBCBytecode::TYPE_INPUT, new_shader_in_reg).swizzle(0) // InstanceID: first component of the new input
 		));
 
 		new_insts.push_back(new_op_mov(
 			new_operand(DXBCBytecode::TYPE_OUTPUT, num_decl_outputs).swizzle(2, 0xff, 0xff, 0xff),
-			new_operand(DXBCBytecode::TYPE_INPUT, num_decl_inputs).swizzle(1) // PrimitiveID: second component of the new input
+			new_operand(DXBCBytecode::TYPE_INPUT, new_shader_in_reg).swizzle(1) // PrimitiveID: second component of the new input
 		));
 
 		new_insts.push_back(new_op_mov(

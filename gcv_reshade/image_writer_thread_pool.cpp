@@ -168,20 +168,25 @@ bool image_writer_thread_pool::save_segmentation_app_indexed_image_needing_resou
 	if (num_threads() == 0) change_num_threads(3);
 	if (num_threads() == 0) return false;
 	init_in_game();
-	queue_item_image2write* qume = new queue_item_image2write(ImageWriter_STB_png,
-		output_filepath_creates_outdir_if_needed(base_filename));
-	if (!qume) {
+	queue_item_image2write* qseg = new queue_item_image2write(ImageWriter_STB_png, output_filepath_creates_outdir_if_needed(base_filename+std::string("semseg")));
+	queue_item_image2write* qtri = new queue_item_image2write(ImageWriter_STB_png, output_filepath_creates_outdir_if_needed(base_filename+std::string("trireg")));
+	if (qseg == nullptr || qtri == nullptr) {
 		reshade::log_message(reshade::log_level::error, "failed to allocate new queue entry");
 		return false;
 	}
 	auto& segmapp = queue->get_device()->get_private_data<segmentation_app_data>();
 	if (!segmapp.copy_and_index_seg_tex_needing_resource_barrier_into_packedbuf_and_metajson(
-		queue, qume->mybuf, metajson)) {
-		delete qume;
+			queue, qseg->mybuf, qtri->mybuf, metajson)) {
+		delete qseg;
+		delete qtri;
 		return false;
 	}
-	if (!images2writequeue.enqueue(qume)) {
-		delete qume;
+	if (!images2writequeue.enqueue(qseg)) {
+		delete qseg;
+		return false;
+	}
+	if (!images2writequeue.enqueue(qtri)) {
+		delete qtri;
 		return false;
 	}
 	return true;

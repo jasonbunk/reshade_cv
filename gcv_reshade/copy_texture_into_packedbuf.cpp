@@ -307,6 +307,7 @@ bool copy_texture_image_given_ready_resource_into_packedbuf(
 		if (!dstBuf.set_pixfmt_and_alloc_bytes(BUF_PIX_FMT_GRAYF32)) return false;
 		depth_gray_bytesLE_to_f32(dstBuf, desc, data, 0, 4, 0, gamehandle, depth_settings);
 		break;
+	case format::r32g32b32a32_float:
 	case format::r32g32b32a32_uint:
 		if (tex_interp != TexInterp_IndexedSeg) return false;
 		dstBuf.width *= 2;

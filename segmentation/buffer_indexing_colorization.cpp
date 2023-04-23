@@ -20,7 +20,8 @@ void multithreaded_row_colorization_worker(moodycamel::ConcurrentQueue<uint32_t>
 	segmentation_app_buffer_indexing_colorization* mapp)
 {
 	const size_t one_minus_draw_meta_size = draw_metadata->size() - 1ull;
-	uint32_t seg_idx_color;
+	uint8_t primbuf[sizeof(perdraw_metadata_type) + 4];
+	uint32_t seg_idx_color = 0u;
 	uint32_t rowidx = 0;
 	while (row_queue->try_dequeue(rowidx)) {
 		const uint32_t* inrowptr = reinterpret_cast<const uint32_t*>(datastartptr + rowidx * row_stride_bytes);
@@ -29,12 +30,17 @@ void multithreaded_row_colorization_worker(moodycamel::ConcurrentQueue<uint32_t>
 			outmetarowptr[x] = (*draw_metadata)[std::min<size_t>(one_minus_draw_meta_size, inrowptr[x * 4u])];
 			switch (mapp->viz_seg_colorization_mode) {
 			case CVM_FullMetaHash:
-				seg_idx_color = colorhashfun(outmetarowptr[x].data(), perdraw_metadata_type_size_bytes, mapp->viz_seg_colorization_seed);
+				seg_idx_color = colorhashfun(outmetarowptr[x].data(), sizeof(perdraw_metadata_type), mapp->viz_seg_colorization_seed);
 				break;
 			case CVM_ShaderIDs:
 				perdraw_metadata_type copyofmeta = outmetarowptr[x];
 				copyofmeta[0] = 0;
-				seg_idx_color = colorhashfun(copyofmeta.data(), perdraw_metadata_type_size_bytes, mapp->viz_seg_colorization_seed);
+				seg_idx_color = colorhashfun(copyofmeta.data(), sizeof(perdraw_metadata_type), mapp->viz_seg_colorization_seed);
+				break;
+			case CVM_PrimitiveHash:
+				memcpy(primbuf, outmetarowptr[x].data(), sizeof(perdraw_metadata_type));
+				*reinterpret_cast<uint32_t*>(primbuf+sizeof(perdraw_metadata_type)) = inrowptr[x*4u+2u];
+				seg_idx_color = colorhashfun(primbuf, sizeof(perdraw_metadata_type) + 4u, mapp->viz_seg_colorization_seed);
 				break;
 			case CVM_BufChannel0: case CVM_BufChannel1: case CVM_BufChannel2:
 				seg_idx_color = colorhashfun(inrowptr + (x * 4u + mapp->viz_seg_colorization_mode), 4ull, mapp->viz_seg_colorization_seed);
@@ -174,8 +180,10 @@ void custom_shader_buffer_visualization_on_reshade_begin_effects(effect_runtime*
 }
 
 
+typedef std::array<uint64_t, 4> TriBuf; // just like "perdraw_metadata_type" but with 1 more value (the triangle ID)
+
 bool segmentation_app_data::copy_and_index_seg_tex_needing_resource_barrier_into_packedbuf_and_metajson(
-	reshade::api::command_queue* cmdqueue, simple_packed_buf& dstBuf, nlohmann::json& dstMetaJson)
+	reshade::api::command_queue* cmdqueue, simple_packed_buf& segBuf, simple_packed_buf& triBuf, nlohmann::json& dstMetaJson)
 {
 	if (cmdqueue == nullptr) return false;
 	command_list* const icmdlst = cmdqueue->get_immediate_command_list();
@@ -199,45 +207,73 @@ bool segmentation_app_data::copy_and_index_seg_tex_needing_resource_barrier_into
 
 	// We will write to a color-indexed lossless PNG file.
 	// The color index (mapping from RGB to actual metadata) will be saved as a json.
-	dstBuf.init_full(tdesc.texture.width, tdesc.texture.height, BUF_PIX_FMT_RGB24);
-	std::map<perdraw_metadata_type, uint32_t> meta2color;
-	std::unordered_map<uint32_t, perdraw_metadata_type> color2meta;
-	uint32_t seg_idx_color;
-	uint8_t* const seg_idx_color_bytes_view = reinterpret_cast<uint8_t*>(&seg_idx_color);
+	segBuf.init_full(tdesc.texture.width, tdesc.texture.height, BUF_PIX_FMT_RGB24);
+	triBuf.init_full(tdesc.texture.width, tdesc.texture.height, BUF_PIX_FMT_RGB24);
+	std::map<perdraw_metadata_type, uint32_t> seg2color;
+	std::map<TriBuf, uint32_t> tri2color;
+	std::unordered_map<uint32_t, perdraw_metadata_type> color2seg;
+	std::unordered_map<uint32_t, TriBuf> color2tri;
+	uint32_t idx_color = 0u;
+	uint8_t* const idx_color_bytes_view = reinterpret_cast<uint8_t*>(&idx_color);
 
 	const auto draw_metadata = r_counter_buf.get_copy_of_frame_perdraw_metadata<perdraw_metadata_type>();
 	if (draw_metadata.empty()) {
-		memset(dstBuf.bytes.data(), 0, dstBuf.num_total_bytes());
+		memset(segBuf.bytes.data(), 0, segBuf.num_total_bytes());
+		memset(triBuf.bytes.data(), 0, triBuf.num_total_bytes());
 	} else {
 		const size_t one_minus_draw_meta_size = draw_metadata.size() - 1ull;
+		TriBuf tbuf;
 		for (uint32_t y = 0; y < tdesc.texture.height; ++y) {
 			const uint32_t* rowptr = reinterpret_cast<const uint32_t*>(reinterpret_cast<const uint8_t*>(intmdt_mapped_data.data) + y * intmdt_mapped_data.row_pitch);
 			for (uint32_t x = 0; x < tdesc.texture.width; ++x) {
-				const perdraw_metadata_type& pixmeta = draw_metadata[std::min<size_t>(one_minus_draw_meta_size, rowptr[x * 4u])];
-				if (auto mci = meta2color.find(pixmeta); mci != meta2color.end()) {
-					seg_idx_color = mci->second;
+				const auto& drawmeta = draw_metadata[std::min<size_t>(one_minus_draw_meta_size, rowptr[x * 4u])];
+				// colorize seg
+				if (auto mci = seg2color.find(drawmeta); mci != seg2color.end()) {
+					idx_color = mci->second;
 				} else {
 					// Generate a new color as a 24-bit hash. We can't accept a hash collision, so repeatedly try with different seeds until we get a new unique color.
 					uint32_t xseed = 0u;
-					while (color2meta.count(seg_idx_color = colorhashfun(pixmeta.data(), perdraw_metadata_type_size_bytes, xseed)))
+					while (color2seg.count(idx_color = colorhashfun(drawmeta.data(), sizeof(perdraw_metadata_type), xseed)))
 						xseed++;
-					meta2color.emplace(pixmeta, seg_idx_color);
-					color2meta.emplace(seg_idx_color, pixmeta);
+					seg2color.emplace(drawmeta, idx_color);
+					color2seg.emplace(idx_color, drawmeta);
 				}
-				uint8_t* optr = dstBuf.entryptr<uint8_t>(y, x);
-				optr[0] = seg_idx_color_bytes_view[0];
-				optr[1] = seg_idx_color_bytes_view[1];
-				optr[2] = seg_idx_color_bytes_view[2];
+				uint8_t* optr = segBuf.entryptr<uint8_t>(y, x);
+				optr[0] = idx_color_bytes_view[0];
+				optr[1] = idx_color_bytes_view[1];
+				optr[2] = idx_color_bytes_view[2];
+				// colorize triangle map
+				memcpy(tbuf.data(), drawmeta.data(), sizeof(perdraw_metadata_type));
+				tbuf.back() = rowptr[x * 4u + 2u];
+				if (auto mci = tri2color.find(tbuf); mci != tri2color.end()) {
+					idx_color = mci->second;
+				} else {
+					// Generate a new color as a 24-bit hash. We can't accept a hash collision, so repeatedly try with different seeds until we get a new unique color.
+					uint32_t xseed = 0u;
+					while (color2tri.count(idx_color = colorhashfun(tbuf.data(), sizeof(tbuf), xseed)))
+						xseed++;
+					tri2color.emplace(tbuf, idx_color);
+					color2tri.emplace(idx_color, tbuf);
+				}
+				optr = triBuf.entryptr<uint8_t>(y, x);
+				optr[0] = idx_color_bytes_view[0];
+				optr[1] = idx_color_bytes_view[1];
+				optr[2] = idx_color_bytes_view[2];
 			}
 		}
 	}
 	device->unmap_texture_region(viz_intmdt_resource_copydest, 0);
-	//dstMetaJson["seg_color2meta"] = color2meta;
+	//dstMetaJson["seg_color2seg"] = color2seg;
 	char sprbuf[16];
-	for(auto cmi = color2meta.cbegin(); cmi != color2meta.cend(); ++cmi) {
-		seg_idx_color = cmi->first;
-		sprintf_s(sprbuf, "%02x%02x%02x", seg_idx_color_bytes_view[0], seg_idx_color_bytes_view[1], seg_idx_color_bytes_view[2]);
+	for(auto cmi = color2seg.cbegin(); cmi != color2seg.cend(); ++cmi) {
+		idx_color = cmi->first;
+		sprintf_s(sprbuf, "%02x%02x%02x", idx_color_bytes_view[0], idx_color_bytes_view[1], idx_color_bytes_view[2]);
 		dstMetaJson["seg_hexcolor2meta"][sprbuf] = cmi->second;
+	}
+	for(auto cmi = color2tri.cbegin(); cmi != color2tri.cend(); ++cmi) {
+		idx_color = cmi->first;
+		sprintf_s(sprbuf, "%02x%02x%02x", idx_color_bytes_view[0], idx_color_bytes_view[1], idx_color_bytes_view[2]);
+		dstMetaJson["tri_hexcolor2meta"][sprbuf] = cmi->second;
 	}
 	return true;
 }

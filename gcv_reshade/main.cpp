@@ -59,7 +59,7 @@ static void on_reshade_finish_effects(reshade::api::effect_runtime *runtime,
 		}
 
 		if (shdata.save_segmentation_app_indexed_image_needing_resource_barrier_copy(
-				basefilen + std::string("semseg"), cmdqueue, metajson)) {
+					basefilen, cmdqueue, metajson)) {
 			capmessage << "semseg good; ";
 		} else {
 			capmessage << "semseg failed; ";
