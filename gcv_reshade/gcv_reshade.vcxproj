@@ -165,6 +165,7 @@
     <ClInclude Include="..\render_target_stats\render_target_stats_tracking.hpp" />
     <ClInclude Include="..\render_target_stats\reshade_tex_format_info.hpp" />
     <ClInclude Include="..\segmentation\buffer_indexing_colorization.hpp" />
+    <ClInclude Include="..\segmentation\colormap_util.hpp" />
     <ClInclude Include="..\segmentation\command_list_state.hpp" />
     <ClInclude Include="..\segmentation\customize_dxbc.hpp" />
     <ClInclude Include="..\segmentation\custom_shader_layout_registers.hpp" />

@@ -4,6 +4,7 @@
 #include "segmentation_app_data.hpp"
 #include "xxhash.h"
 #include "concurrentqueue.h"
+#include "colormap_util.hpp"
 using namespace reshade::api;
 
 
@@ -13,6 +14,8 @@ inline uint32_t colorhashfun(const void* buf, size_t buflen, uint32_t seed) {
 	return tmp;
 }
 
+typedef std::array<uint32_t, 2> DrawInstIDbuf; // pair (Draw#, InstanceID) uniquely identifies each object within one frame
+
 
 void multithreaded_row_colorization_worker(moodycamel::ConcurrentQueue<uint32_t>* row_queue,
 	const uint8_t* datastartptr, uint32_t row_stride_bytes, uint32_t row_width_pix,
@@ -20,7 +23,8 @@ void multithreaded_row_colorization_worker(moodycamel::ConcurrentQueue<uint32_t>
 	segmentation_app_buffer_indexing_colorization* mapp)
 {
 	const size_t one_minus_draw_meta_size = draw_metadata->size() - 1ull;
-	uint8_t primbuf[sizeof(perdraw_metadata_type) + 4];
+	uint8_t primbuf[sizeof(perdraw_metadata_type) + sizeof(uint32_t)];
+	DrawInstIDbuf objbuf;
 	uint32_t seg_idx_color = 0u;
 	uint32_t rowidx = 0;
 	while (row_queue->try_dequeue(rowidx)) {
@@ -36,6 +40,11 @@ void multithreaded_row_colorization_worker(moodycamel::ConcurrentQueue<uint32_t>
 				perdraw_metadata_type copyofmeta = outmetarowptr[x];
 				copyofmeta[0] = 0;
 				seg_idx_color = colorhashfun(copyofmeta.data(), sizeof(perdraw_metadata_type), mapp->viz_seg_colorization_seed);
+				break;
+			case CVM_DrawInstance:
+				objbuf[0] = inrowptr[x * 4u + 0u]; // draw call number
+				objbuf[1] = inrowptr[x * 4u + 1u]; // instanced number
+				seg_idx_color = colorhashfun(objbuf.data(), sizeof(objbuf), mapp->viz_seg_colorization_seed);
 				break;
 			case CVM_PrimitiveHash:
 				memcpy(primbuf, outmetarowptr[x].data(), sizeof(perdraw_metadata_type));
@@ -180,7 +189,7 @@ void custom_shader_buffer_visualization_on_reshade_begin_effects(effect_runtime*
 }
 
 
-typedef std::array<uint64_t, 4> TriBuf; // just like "perdraw_metadata_type" but with 1 more value (the triangle ID)
+typedef std::array<uint64_t, std::tuple_size<perdraw_metadata_type>::value + 2u> TriBuf; // like "perdraw_metadata_type" but with 2 more values: DrawInstID, PrimitiveID
 
 bool segmentation_app_data::copy_and_index_seg_tex_needing_resource_barrier_into_packedbuf_and_metajson(
 	reshade::api::command_queue* cmdqueue, simple_packed_buf& segBuf, simple_packed_buf& triBuf, nlohmann::json& dstMetaJson)
@@ -211,6 +220,7 @@ bool segmentation_app_data::copy_and_index_seg_tex_needing_resource_barrier_into
 	triBuf.init_full(tdesc.texture.width, tdesc.texture.height, BUF_PIX_FMT_RGB24);
 	std::map<perdraw_metadata_type, uint32_t> seg2color;
 	std::map<TriBuf, uint32_t> tri2color;
+	std::map<DrawInstIDbuf, uint32_t> inst2objid;
 	std::unordered_map<uint32_t, perdraw_metadata_type> color2seg;
 	std::unordered_map<uint32_t, TriBuf> color2tri;
 	uint32_t idx_color = 0u;
@@ -222,6 +232,7 @@ bool segmentation_app_data::copy_and_index_seg_tex_needing_resource_barrier_into
 		memset(triBuf.bytes.data(), 0, triBuf.num_total_bytes());
 	} else {
 		const size_t one_minus_draw_meta_size = draw_metadata.size() - 1ull;
+		DrawInstIDbuf ibuf;
 		TriBuf tbuf;
 		for (uint32_t y = 0; y < tdesc.texture.height; ++y) {
 			const uint32_t* rowptr = reinterpret_cast<const uint32_t*>(reinterpret_cast<const uint8_t*>(intmdt_mapped_data.data) + y * intmdt_mapped_data.row_pitch);
@@ -242,16 +253,27 @@ bool segmentation_app_data::copy_and_index_seg_tex_needing_resource_barrier_into
 				optr[0] = idx_color_bytes_view[0];
 				optr[1] = idx_color_bytes_view[1];
 				optr[2] = idx_color_bytes_view[2];
-				// colorize triangle map
+				// Colorize detailed triangle+metadata map
+				// Don't bother hashing for colors
+				// InstanceID changes from frame to frame, so there is no expectation of continuity across frames
 				memcpy(tbuf.data(), drawmeta.data(), sizeof(perdraw_metadata_type));
-				tbuf.back() = rowptr[x * 4u + 2u];
+				ibuf[0] = rowptr[x * 4u]; // draw #
+				ibuf[1] = rowptr[x * 4u + 1u]; // InstanceID
+				if (auto ibo = inst2objid.find(ibuf); ibo != inst2objid.end()) {
+					tbuf[std::tuple_size<perdraw_metadata_type>::value] = ibo->second;
+				} else {
+					inst2objid.emplace(ibuf, tbuf[std::tuple_size<perdraw_metadata_type>::value] = inst2objid.size());
+				}
+				tbuf[std::tuple_size<perdraw_metadata_type>::value + 1u] = rowptr[x * 4u + 2u]; // PrimitiveID
 				if (auto mci = tri2color.find(tbuf); mci != tri2color.end()) {
 					idx_color = mci->second;
 				} else {
-					// Generate a new color as a 24-bit hash. We can't accept a hash collision, so repeatedly try with different seeds until we get a new unique color.
-					uint32_t xseed = 0u;
-					while (color2tri.count(idx_color = colorhashfun(tbuf.data(), sizeof(tbuf), xseed)))
-						xseed++;
+					idx_color = 0u;
+					const auto newcolor = morton_halton_curve_rgb_3d(color2tri.size());
+					idx_color_bytes_view[0] = newcolor[0];
+					idx_color_bytes_view[1] = newcolor[1];
+					idx_color_bytes_view[2] = newcolor[2];
+					if (color2tri.count(idx_color)) reshade::log_message(reshade::log_level::error, "error: repeated color in colormap"); // TODO assert
 					tri2color.emplace(tbuf, idx_color);
 					color2tri.emplace(idx_color, tbuf);
 				}
