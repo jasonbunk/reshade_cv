@@ -5,6 +5,10 @@ VisualStudioVersion = 17.4.33122.133
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gcv_reshade", "gcv_reshade\gcv_reshade.vcxproj", "{D9379DE1-DFF6-4190-ACC5-913D9D22AB22}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "renderdoc", "renderdoc\renderdoc.vcxproj", "{911F2F55-1E66-4FF7-A8D5-CFF63ACD1E3B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "segmentation_shadering", "segmentation_shadering\segmentation_shadering.vcxproj", "{052290AB-95E0-4340-830A-3E7FDB28F976}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -15,6 +19,14 @@ Global
 		{D9379DE1-DFF6-4190-ACC5-913D9D22AB22}.Debug|x64.Build.0 = Debug|x64
 		{D9379DE1-DFF6-4190-ACC5-913D9D22AB22}.Release|x64.ActiveCfg = Release|x64
 		{D9379DE1-DFF6-4190-ACC5-913D9D22AB22}.Release|x64.Build.0 = Release|x64
+		{911F2F55-1E66-4FF7-A8D5-CFF63ACD1E3B}.Debug|x64.ActiveCfg = Debug|x64
+		{911F2F55-1E66-4FF7-A8D5-CFF63ACD1E3B}.Debug|x64.Build.0 = Debug|x64
+		{911F2F55-1E66-4FF7-A8D5-CFF63ACD1E3B}.Release|x64.ActiveCfg = Release|x64
+		{911F2F55-1E66-4FF7-A8D5-CFF63ACD1E3B}.Release|x64.Build.0 = Release|x64
+		{052290AB-95E0-4340-830A-3E7FDB28F976}.Debug|x64.ActiveCfg = Debug|x64
+		{052290AB-95E0-4340-830A-3E7FDB28F976}.Debug|x64.Build.0 = Debug|x64
+		{052290AB-95E0-4340-830A-3E7FDB28F976}.Release|x64.ActiveCfg = Release|x64
+		{052290AB-95E0-4340-830A-3E7FDB28F976}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

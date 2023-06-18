@@ -45,17 +45,24 @@
     <TargetExt>.addon</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)3rdparty;$(SolutionDir);$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)3rdparty;$(SolutionDir)renderdoc;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)3rdparty;$(SolutionDir);$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)3rdparty;$(SolutionDir)renderdoc;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <VcpkgUseStatic>true</VcpkgUseStatic>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <VcpkgUseStatic>true</VcpkgUseStatic>
+    <VcpkgConfiguration>Release</VcpkgConfiguration>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_DEPRECATE;NOMINMAX;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>RENDERDOC_FOR_SHADERS;RENDERDOC_EXPORTS;RENDERDOC_PLATFORM_WIN32;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_DEPRECATE;NOMINMAX;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <DisableSpecificWarnings>4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
@@ -71,7 +78,7 @@
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_DEPRECATE;NOMINMAX;ImTextureID=ImU64;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>RENDERDOC_FOR_SHADERS;RENDERDOC_EXPORTS;RENDERDOC_PLATFORM_WIN32;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_DEPRECATE;NOMINMAX;ImTextureID=ImU64;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <DisableSpecificWarnings>4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
@@ -113,7 +120,6 @@
     <ClCompile Include="..\gcv_utils\simple_packed_buf.cpp" />
     <ClCompile Include="..\render_target_stats\render_target_stats_tracking.cpp" />
     <ClCompile Include="..\segmentation\buffer_indexing_colorization.cpp" />
-    <ClCompile Include="..\segmentation\customize_dxbc.cpp" />
     <ClCompile Include="..\segmentation\reshade_hooks.cpp" />
     <ClCompile Include="..\segmentation\semseg_shader_register_bind.cpp" />
     <ClCompile Include="main.cpp" />
@@ -150,6 +156,7 @@
     <ClInclude Include="..\gcv_games\HorizonZeroDawn.h" />
     <ClInclude Include="..\gcv_games\ResidentEvils.h" />
     <ClInclude Include="..\gcv_games\Witcher3.h" />
+    <ClInclude Include="..\gcv_utils\assert_utils.hpp" />
     <ClInclude Include="..\gcv_utils\camera_data_struct.h" />
     <ClInclude Include="..\gcv_utils\depth_utils.h" />
     <ClInclude Include="..\gcv_utils\geometry.h" />
@@ -167,11 +174,10 @@
     <ClInclude Include="..\segmentation\buffer_indexing_colorization.hpp" />
     <ClInclude Include="..\segmentation\colormap_util.hpp" />
     <ClInclude Include="..\segmentation\command_list_state.hpp" />
-    <ClInclude Include="..\segmentation\customize_dxbc.hpp" />
-    <ClInclude Include="..\segmentation\custom_shader_layout_registers.hpp" />
+    <ClInclude Include="..\segmentation\reshade_graphics_api_util.hpp" />
     <ClInclude Include="..\segmentation\reshade_hooks.hpp" />
-    <ClInclude Include="..\segmentation\rdoc_utils.hpp" />
-    <ClInclude Include="..\segmentation\rt_resource.hpp" />
+    <ClInclude Include="..\segmentation\reshade_stringify_utils.hpp" />
+    <ClInclude Include="..\segmentation\resource_helper.hpp" />
     <ClInclude Include="..\segmentation\semseg_shader_register_bind.hpp" />
     <ClInclude Include="..\segmentation\segmentation_app_data.hpp" />
     <ClInclude Include="..\segmentation\draws_counting_data_buffer.hpp" />
@@ -190,6 +196,14 @@
     <None Include="..\3rdparty\fpzip\rcdecoder.inl" />
     <None Include="..\3rdparty\fpzip\rcencoder.inl" />
     <None Include="..\3rdparty\fpzip\rcqsmodel.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\renderdoc\renderdoc.vcxproj">
+      <Project>{911f2f55-1e66-4ff7-a8d5-cff63acd1e3b}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\segmentation_shadering\segmentation_shadering.vcxproj">
+      <Project>{052290ab-95e0-4340-830a-3e7fdb28f976}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

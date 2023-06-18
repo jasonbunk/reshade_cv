@@ -1,0 +1,210 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\renderdoc\driver\shaders\dxbc\dxbc_bytecode.cpp">
+      <Filter>renderdoc\shaders\dxbc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\renderdoc\driver\shaders\dxbc\dxbc_bytecode_editor.cpp">
+      <Filter>renderdoc\shaders\dxbc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\renderdoc\driver\shaders\dxbc\dxbc_bytecode_ops.cpp">
+      <Filter>renderdoc\shaders\dxbc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\renderdoc\driver\shaders\dxbc\dxbc_bytecode_vendorext.cpp">
+      <Filter>renderdoc\shaders\dxbc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\renderdoc\driver\shaders\dxbc\dxbc_compile.cpp">
+      <Filter>renderdoc\shaders\dxbc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\renderdoc\driver\shaders\dxbc\dxbc_container.cpp">
+      <Filter>renderdoc\shaders\dxbc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\renderdoc\driver\shaders\dxbc\dxbc_debug.cpp">
+      <Filter>renderdoc\shaders\dxbc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\renderdoc\driver\shaders\dxbc\dxbc_reflect.cpp">
+      <Filter>renderdoc\shaders\dxbc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\renderdoc\driver\shaders\dxbc\dxbc_sdbg.cpp">
+      <Filter>renderdoc\shaders\dxbc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\renderdoc\driver\shaders\dxbc\dxbc_spdb.cpp">
+      <Filter>renderdoc\shaders\dxbc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\renderdoc\driver\shaders\dxbc\dxbc_stringise.cpp">
+      <Filter>renderdoc\shaders\dxbc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\renderdoc\driver\shaders\dxil\dxil_bytecode.cpp">
+      <Filter>renderdoc\shaders\dxil</Filter>
+    </ClCompile>
+    <ClCompile Include="..\renderdoc\driver\shaders\dxil\dxil_bytecode_editor.cpp">
+      <Filter>renderdoc\shaders\dxil</Filter>
+    </ClCompile>
+    <ClCompile Include="..\renderdoc\driver\shaders\dxil\dxil_common.cpp">
+      <Filter>renderdoc\shaders\dxil</Filter>
+    </ClCompile>
+    <ClCompile Include="..\renderdoc\driver\shaders\dxil\dxil_debuginfo.cpp">
+      <Filter>renderdoc\shaders\dxil</Filter>
+    </ClCompile>
+    <ClCompile Include="..\renderdoc\driver\shaders\dxil\dxil_disassemble.cpp">
+      <Filter>renderdoc\shaders\dxil</Filter>
+    </ClCompile>
+    <ClCompile Include="..\renderdoc\driver\shaders\dxil\dxil_reflect.cpp">
+      <Filter>renderdoc\shaders\dxil</Filter>
+    </ClCompile>
+    <ClCompile Include="..\renderdoc\driver\shaders\dxil\llvm_decoder.cpp">
+      <Filter>renderdoc\shaders\dxil</Filter>
+    </ClCompile>
+    <ClCompile Include="..\renderdoc\driver\shaders\dxil\llvm_encoder.cpp">
+      <Filter>renderdoc\shaders\dxil</Filter>
+    </ClCompile>
+    <ClCompile Include="..\renderdoc\maths\formatpacking.cpp">
+      <Filter>renderdoc\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\renderdoc\common\common.cpp">
+      <Filter>renderdoc\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\renderdoc\strings\string_utils.cpp">
+      <Filter>renderdoc\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\renderdoc\core\settings.cpp">
+      <Filter>renderdoc\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\renderdoc\lz4\lz4.cpp">
+      <Filter>renderdoc\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\renderdoc\md5\md5.cpp">
+      <Filter>renderdoc\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\renderdoc\driver\dxgi\dxgi_common.cpp">
+      <Filter>renderdoc\dxgi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\renderdoc\maths\vec.cpp">
+      <Filter>renderdoc\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\renderdoc\replay\replay_driver.cpp">
+      <Filter>renderdoc\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\renderdoc\os\os_specific.cpp">
+      <Filter>renderdoc\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\renderdoc\os\win32\win32_stringio.cpp">
+      <Filter>renderdoc\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\renderdoc\strings\utf8printf.cpp">
+      <Filter>renderdoc\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\renderdoc\strings\grisu2.cpp">
+      <Filter>renderdoc\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\renderdoc\driver\dxgi\dxgi_stringise.cpp">
+      <Filter>renderdoc\misc</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\renderdoc\driver\shaders\dxbc\dxbc_bytecode.h">
+      <Filter>renderdoc\shaders\dxbc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\renderdoc\driver\shaders\dxbc\dxbc_bytecode_editor.h">
+      <Filter>renderdoc\shaders\dxbc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\renderdoc\driver\shaders\dxbc\dxbc_bytecode_ops.h">
+      <Filter>renderdoc\shaders\dxbc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\renderdoc\driver\shaders\dxbc\dxbc_common.h">
+      <Filter>renderdoc\shaders\dxbc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\renderdoc\driver\shaders\dxbc\dxbc_compile.h">
+      <Filter>renderdoc\shaders\dxbc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\renderdoc\driver\shaders\dxbc\dxbc_container.h">
+      <Filter>renderdoc\shaders\dxbc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\renderdoc\driver\shaders\dxbc\dxbc_debug.h">
+      <Filter>renderdoc\shaders\dxbc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\renderdoc\driver\shaders\dxbc\dxbc_reflect.h">
+      <Filter>renderdoc\shaders\dxbc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\renderdoc\driver\shaders\dxbc\dxbc_sdbg.h">
+      <Filter>renderdoc\shaders\dxbc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\renderdoc\driver\shaders\dxbc\dxbc_spdb.h">
+      <Filter>renderdoc\shaders\dxbc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\renderdoc\driver\shaders\dxbc\nvapi_wrapper.h">
+      <Filter>renderdoc\shaders\dxbc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\renderdoc\driver\shaders\dxbc\precompiled.h">
+      <Filter>renderdoc\shaders\dxbc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\renderdoc\driver\shaders\dxbc\official\cvconst.h">
+      <Filter>renderdoc\shaders\dxbc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\renderdoc\driver\shaders\dxbc\official\cvinfo.h">
+      <Filter>renderdoc\shaders\dxbc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\renderdoc\driver\shaders\dxil\dxil_bytecode.h">
+      <Filter>renderdoc\shaders\dxil</Filter>
+    </ClInclude>
+    <ClInclude Include="..\renderdoc\driver\shaders\dxil\dxil_bytecode_editor.h">
+      <Filter>renderdoc\shaders\dxil</Filter>
+    </ClInclude>
+    <ClInclude Include="..\renderdoc\driver\shaders\dxil\dxil_common.h">
+      <Filter>renderdoc\shaders\dxil</Filter>
+    </ClInclude>
+    <ClInclude Include="..\renderdoc\driver\shaders\dxil\dxil_debuginfo.h">
+      <Filter>renderdoc\shaders\dxil</Filter>
+    </ClInclude>
+    <ClInclude Include="..\renderdoc\driver\shaders\dxil\llvm_bitreader.h">
+      <Filter>renderdoc\shaders\dxil</Filter>
+    </ClInclude>
+    <ClInclude Include="..\renderdoc\driver\shaders\dxil\llvm_bitwriter.h">
+      <Filter>renderdoc\shaders\dxil</Filter>
+    </ClInclude>
+    <ClInclude Include="..\renderdoc\driver\shaders\dxil\llvm_common.h">
+      <Filter>renderdoc\shaders\dxil</Filter>
+    </ClInclude>
+    <ClInclude Include="..\renderdoc\driver\shaders\dxil\llvm_decoder.h">
+      <Filter>renderdoc\shaders\dxil</Filter>
+    </ClInclude>
+    <ClInclude Include="..\renderdoc\driver\shaders\dxil\llvm_encoder.h">
+      <Filter>renderdoc\shaders\dxil</Filter>
+    </ClInclude>
+    <ClInclude Include="..\renderdoc\driver\shaders\dxil\precompiled.h">
+      <Filter>renderdoc\shaders\dxil</Filter>
+    </ClInclude>
+    <ClInclude Include="..\renderdoc\common\common.h">
+      <Filter>renderdoc\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\renderdoc\driver\dxgi\dxgi_common.h">
+      <Filter>renderdoc\dxgi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\renderdoc\api\replay\shader_types.h">
+      <Filter>renderdoc\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\renderdoc\driver\shaders\dx_shader_settings.h">
+      <Filter>renderdoc\shaders</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="renderdoc">
+      <UniqueIdentifier>{aba9f902-ba9e-4cf1-bf19-d748692c8a19}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="renderdoc\shaders">
+      <UniqueIdentifier>{497d2353-bc5e-48ef-b03c-7c74f71556d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="renderdoc\shaders\dxbc">
+      <UniqueIdentifier>{23ed3847-59b9-499d-a84b-a49735e6bace}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="renderdoc\shaders\dxil">
+      <UniqueIdentifier>{db3c47e0-7c5e-45dc-8945-64868518ab52}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="renderdoc\misc">
+      <UniqueIdentifier>{226e67e1-21f1-42fb-8c8d-0bda74c59fd1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="renderdoc\dxgi">
+      <UniqueIdentifier>{b9d62a4a-bd35-4047-8a92-b9d8f085eacf}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

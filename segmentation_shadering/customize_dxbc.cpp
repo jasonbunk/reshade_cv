@@ -5,7 +5,7 @@
 
 bool customize_shader_dxbc_or_dxil(
 	bool b_truepixel_falsevertex,
-	const reshade::api::device_api graphics_api,
+	const my_graphics_api::api_enum graphics_api,
 	bytebuf* buf,
 	custom_shader_layout_registers& newregisters,
 	std::stringstream& log)
@@ -26,7 +26,6 @@ bool customize_shader_dxbc_or_dxil(
 #include <d3d12.h>
 static constexpr int verbose = 0;
 using std::endl;
-using reshade::api::device_api;
 
 static int highest_decl_register(std::unordered_set<DXBCBytecode::OpcodeType> considered_reg_op_types, DXBCBytecode::Program* prog, std::stringstream& log) {
 	int maxtexreg = -1;
@@ -93,7 +92,7 @@ static DXBCBytecode::Operation new_op_mov(DXBCBytecode::Operand dst, DXBCBytecod
 	return mov;
 }
 
-bool customize_dxbc(bool b_truepixel_falsevertex, const device_api graphics_api, DXBC::DXBCContainer & replayvsc, bytebuf* buf, custom_shader_layout_registers& newregisters, std::stringstream& log) {
+bool customize_dxbc(bool b_truepixel_falsevertex, const my_graphics_api::api_enum graphics_api, DXBC::DXBCContainer & replayvsc, bytebuf* buf, custom_shader_layout_registers& newregisters, std::stringstream& log) {
 	if (buf == nullptr) {
 		log << "?? customize_dxbc: no buf to write to" << endl;
 		return false;
@@ -131,9 +130,9 @@ bool customize_dxbc(bool b_truepixel_falsevertex, const device_api graphics_api,
 	}
 
 	const uint64_t max_num_bound_pixel_shader_outputs =
-		(graphics_api == device_api::d3d10 ? D3D10_SIMULTANEOUS_RENDER_TARGET_COUNT :
-		 (graphics_api == device_api::d3d11 ? D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT :
-		  (graphics_api == device_api::d3d12 ? D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT : 8)));
+		(graphics_api == my_graphics_api::d3d10 ? D3D10_SIMULTANEOUS_RENDER_TARGET_COUNT :
+		 (graphics_api == my_graphics_api::d3d11 ? D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT :
+		  (graphics_api == my_graphics_api::d3d12 ? D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT : 8)));
 
 	// count number of declared outputs
 	const int num_decl_outputs = 1 + highest_decl_register({ DXBCBytecode::OPCODE_DCL_OUTPUT, DXBCBytecode::OPCODE_DCL_OUTPUT_SGV, DXBCBytecode::OPCODE_DCL_OUTPUT_SIV }, &shadereditor, log);
@@ -274,11 +273,11 @@ bool customize_dxbc(bool b_truepixel_falsevertex, const device_api graphics_api,
 
 bool customize_shader_dxbc_or_dxil(
 		bool b_truepixel_falsevertex,
-		const device_api graphics_api,
+		const my_graphics_api::api_enum graphics_api,
 		bytebuf* buf,
 		custom_shader_layout_registers& newregisters,
 		std::stringstream& log) {
-	DXBC::DXBCContainer replayvsc(*buf, rdcstr(), reshade_api_to_renderdoc_api(graphics_api), ~0U, ~0U);
+	DXBC::DXBCContainer replayvsc(*buf, rdcstr(), my_graphics_api_to_renderdoc_api(graphics_api), ~0U, ~0U);
 	if (replayvsc.CheckForDXIL(buf->data(), buf->size())) {
 		log << "TODO: customize DXIL" << endl;
 		return false;

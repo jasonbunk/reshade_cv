@@ -1,9 +1,9 @@
 // Copyright (C) 2023 Jason Bunk
 #pragma once
 #include "shader_types.hpp"
-#include "rt_resource.hpp"
+#include "resource_helper.hpp"
 #include "draws_counting_data_buffer.hpp"
-#include "custom_shader_layout_registers.hpp"
+#include "segmentation_shadering/custom_shader_layout_registers.hpp"
 #include "buffer_indexing_colorization.hpp"
 #include <reshade.hpp>
 #include <unordered_set>
@@ -24,7 +24,7 @@ struct __declspec(uuid("bab8ffb9-5e8b-4b48-b4f2-4bac4bf87e82")) segmentation_app
 	std::unordered_map<uint64_t, uint64_t> pipeline_handle_to_pipeline_layout_handle;
 	std::unordered_map<uint64_t, shader_hash_t> pipeline_handle_to_pixel_shader_hash;
 	std::unordered_map<uint64_t, shader_hash_t> pipeline_handle_to_vertex_shader_hash;
-	rt_resource_texture r_accum_bonus; // our custom render target texture
+	resource_helper_texture r_accum_bonus; // our custom render target texture
 	draws_counting_data_buffer<perdraw_metadata_type> r_counter_buf; // store metadata for tracked draws
 
 	// for saving segmentation results to disk

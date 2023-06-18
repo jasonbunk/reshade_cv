@@ -8,6 +8,7 @@
 #include "copy_texture_into_packedbuf.h"
 #include "tex_buffer_utils.h"
 #include "xxhash.h"
+#include "render_target_stats/reshade_tex_format_info.hpp"
 
 using namespace reshade::api;
 
@@ -337,12 +338,12 @@ bool copy_texture_image_given_ready_resource_into_packedbuf(
 		break;
 	default: {
 		// Unsupported format
-		reshade::log_message(reshade::log_level::error, std::string(std::string("Failed to save texture: unsupported texture format ")+std::to_string(static_cast<int>(desc.texture.format))).c_str());
+		reshade::log_message(reshade::log_level::error, std::string(std::string("Failed to save texture: unsupported texture format ")+reshade::api::fmtnames.at(desc.texture.format)).c_str());
 		return false;
 	}
 	}
 	if (depth_settings.more_verbose) {
-		reshade::log_message(reshade::log_level::info, std::string(std::string("copied texture with format ") + std::to_string(static_cast<int>(desc.texture.format))).c_str());
+		reshade::log_message(reshade::log_level::info, std::string(std::string("copied texture with format ") + reshade::api::fmtnames.at(desc.texture.format)).c_str());
 	}
 	return true;
 }
@@ -370,6 +371,8 @@ bool copy_texture_image_needing_resource_barrier_into_packedbuf(
 			reshade::log_message(reshade::log_level::error, std::string(std::string("Failed to save texture: bad desc.usage ") + std::to_string((int64_t)(desc.usage))).c_str());
 			return false;
 		}
+
+		reshade::log_message(reshade::log_level::info, std::string( std::string("saving texture of shape ")+std::to_string(desc.texture.width)+std::string(" x ")+std::to_string(desc.texture.height)+std::string(" of format ")+reshade::api::fmtnames.at(desc.texture.format)+std::string(" with interpretation ")+std::to_string(static_cast<int>(tex_interp))).c_str());
 
 		//const reshade::api::format dstfmt = (desc.texture.format == reshade::api::format::r32_g8_typeless) ? reshade::api::format::r32_float : format_to_default_typed(desc.texture.format);
 		const reshade::api::format dstfmt = format_to_default_typed(desc.texture.format);

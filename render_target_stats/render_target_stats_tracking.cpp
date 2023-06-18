@@ -120,8 +120,13 @@ static void on_reshade_finish_effects(effect_runtime* runtime, command_list* cmd
 	std::lock_guard<std::mutex> guard(mapp.statsmut);
 	// Update tracking of clickable resources
 	for (const auto& [rhndl, rstats] : mapp.resource2stats) {
-		if(rstats.total_draws > 0)
+		if (rstats.total_draws > 0) {
 			mapp.resource2lastseenframeidx[rhndl] = mapp.frameidx;
+			if (rhndl != 0ull) {
+				resource_desc rdesc = device->get_resource_desc({ rhndl });
+				mapp.resource2lastseendrawformat[rhndl] = rdesc.texture.format;
+			}
+		}
 	}
 	// Remove stale buffers that haven't been drawn to in a while
 	for (auto mit = mapp.resource2lastseenframeidx.cbegin(); mit != mapp.resource2lastseenframeidx.cend(); ) {
@@ -174,7 +179,7 @@ void imgui_draw_rgb_render_target_stats_in_reshade_overlay(effect_runtime* runti
 			texfmtname = fmtnames.at(rdesc.texture.format);
 			greyedout = !mapp.actually_clicked_resources.count(rhndl) && !fmtchannelsdisplaycolorlike.at(rdesc.texture.format);
 		} else {
-			texfmtname = "?"; // todo cache last known name of resource in a map
+			texfmtname = mapp.resource2lastseendrawformat.count(rhndl) ? fmtnames.at(mapp.resource2lastseendrawformat.at(rhndl)) : "?"; // todo cache last known name of resource in a map
 			greyedout = !mapp.actually_clicked_resources.count(rhndl);
 		}
 		if (greyedout) {

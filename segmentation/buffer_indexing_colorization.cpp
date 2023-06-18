@@ -118,7 +118,7 @@ void imgui_draw_custom_shader_debug_viz_in_reshade_overlay(effect_runtime* runti
 
 static resource_desc create_or_resize_intermediate_resource_copydest(device* device, segmentation_app_data& mapp) {
 	resource_desc tdesc;
-	if (!mapp.r_accum_bonus.isvalid || mapp.r_accum_bonus.rsc.handle == 0ull) return tdesc;
+	if (!mapp.r_accum_bonus.is_valid() || mapp.r_accum_bonus.rsc.handle == 0ull) return tdesc;
 	tdesc = device->get_resource_desc(mapp.r_accum_bonus.rsc);
 	const bool tdesc_shape_same = (mapp.viz_seg_colorized_for_display.width == tdesc.texture.width && mapp.viz_seg_colorized_for_display.height == tdesc.texture.height);
 	if (mapp.viz_intmdt_resource_copydest.handle == 0ull || !tdesc_shape_same) {
@@ -148,7 +148,7 @@ void custom_shader_buffer_visualization_on_reshade_begin_effects(effect_runtime*
 	device* const device = runtime->get_device();
 	auto& mapp = device->get_private_data<segmentation_app_data>();
 	resource_desc tdesc = create_or_resize_intermediate_resource_copydest(device, mapp);
-	if (mapp.viz_intmdt_resource_copydest.handle == 0ull || !mapp.do_intercept_draw || !mapp.r_accum_bonus.isvalid || mapp.r_accum_bonus.rsc.handle == 0ull) return;
+	if (mapp.viz_intmdt_resource_copydest.handle == 0ull || !mapp.do_intercept_draw || !mapp.r_accum_bonus.is_valid() || mapp.r_accum_bonus.rsc.handle == 0ull) return;
 
 	// check for reshade shader tex handle
 	effect_texture_variable efftexvar = check_for_effect_tex(runtime, device);
@@ -201,7 +201,7 @@ bool segmentation_app_data::copy_and_index_seg_tex_needing_resource_barrier_into
 	if (device == nullptr) return false;
 
 	resource_desc tdesc = create_or_resize_intermediate_resource_copydest(device, *this);
-	if (viz_intmdt_resource_copydest.handle == 0ull || !do_intercept_draw || !r_accum_bonus.isvalid || r_accum_bonus.rsc.handle == 0ull) return false;
+	if (viz_intmdt_resource_copydest.handle == 0ull || !do_intercept_draw || !r_accum_bonus.is_valid() || r_accum_bonus.rsc.handle == 0ull) return false;
 	if (tdesc.texture.width <= 1 || tdesc.texture.height <= 1) return false;
 
 	icmdlst->barrier(r_accum_bonus.rsc, resource_usage::render_target, resource_usage::copy_source);

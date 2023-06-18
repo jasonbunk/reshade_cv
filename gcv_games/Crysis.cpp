@@ -14,7 +14,10 @@ bool GameCrysis::can_interpret_depth_buffer() const {
 
 #define NEAR_PLANE_DISTANCE 0.25
 
+// need to scan far plane in memory because it seems to change per level?
+#define FAR_PLANE_DISTANCE 5000.0
+
 float GameCrysis::convert_to_physical_distance_depth_u64(uint64_t depthval) const {
-	// approximating (1-near/far) as nearly 1
-	return NEAR_PLANE_DISTANCE * 16777216.0 / static_cast<double>(std::max(1ull, 16777216ull - depthval));
+	const double znorm = static_cast<double>(depthval) / 16777215.0;
+	return static_cast<float>(NEAR_PLANE_DISTANCE / std::max(0.0000001, 1.0 - znorm * (1.0 - NEAR_PLANE_DISTANCE / FAR_PLANE_DISTANCE)));
 }

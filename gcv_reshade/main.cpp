@@ -12,7 +12,7 @@ typedef std::chrono::steady_clock hiresclock;
 
 static void on_init(reshade::api::device* device)
 {
-	image_writer_thread_pool &shdata = device->create_private_data<image_writer_thread_pool>();
+	auto &shdata = device->create_private_data<image_writer_thread_pool>();
 	reshade::log_message(reshade::log_level::info, std::string(std::string("tests: ")+run_utils_tests()).c_str());
 	shdata.init_time = hiresclock::now();
 }
@@ -26,7 +26,7 @@ static void on_destroy(reshade::api::device* device)
 static void on_reshade_finish_effects(reshade::api::effect_runtime *runtime,
 	reshade::api::command_list *, reshade::api::resource_view rtv, reshade::api::resource_view)
 {
-	image_writer_thread_pool &shdata = runtime->get_device()->get_private_data<image_writer_thread_pool>();
+	auto &shdata = runtime->get_device()->get_private_data<image_writer_thread_pool>();
 	CamMatrixData gamecam;
 	std::string errstr;
 	bool shaderupdatedwithcampos = false;
@@ -150,7 +150,7 @@ static void on_reshade_finish_effects(reshade::api::effect_runtime *runtime,
 
 static void draw_settings_overlay(reshade::api::effect_runtime *runtime)
 {
-	image_writer_thread_pool &shdata = runtime->get_device()->get_private_data<image_writer_thread_pool>();
+	auto &shdata = runtime->get_device()->get_private_data<image_writer_thread_pool>();
 	ImGui::Checkbox("Depth map: verbose mode", &shdata.depth_settings.more_verbose);
 	if (shdata.depth_settings.more_verbose) {
 		ImGui::Checkbox("Depth map: debug mode", &shdata.depth_settings.debug_mode);

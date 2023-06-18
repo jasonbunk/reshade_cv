@@ -59,6 +59,7 @@ struct __declspec(uuid("c58e40fa-bf45-4e8e-9c39-6d091c5ae03f")) device_draw_stat
 	// Keep track of when each resource was last drawn to
 	uint64_t frameidx = 0;
 	std::unordered_map<uint64_t, uint64_t> resource2lastseenframeidx;
+	std::unordered_map<uint64_t, reshade::api::format> resource2lastseendrawformat;
 	// Keep track of what the user has actually clicked on
 	uint64_t suggested_resource_to_click = 0;
 	std::unordered_set<uint64_t> actually_clicked_resources;

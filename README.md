@@ -61,6 +61,10 @@ NeRFs below were computed using the camera matrix extracted from the game, direc
 ### Horizon Zero Dawn NeRF
 [![HZD NeRF](https://img.youtube.com/vi/7MRoxrtSn0k/0.jpg)](https://youtu.be/7MRoxrtSn0k)
 
+### Crysis data (cloud / segmentation / NeRF)
+Harbor: 383 images, 3 times of day, 1080p:
+[Google Drive download](https://drive.google.com/file/d/1qeNEMXdliYBKauxdoas8jQUCPR3MsSxv/view?usp=sharing)
+
 # Build notes
 
 I use Visual Studio 2022, with dependencies installed via vcpkg target ``x64-windows``.
@@ -77,7 +81,7 @@ vcpkg dependencies:
 
 Use vcpkg to install the dependencies.
 
-For semantic segmentation, I use part of [`RenderDoc`](https://github.com/baldurk/renderdoc) (License: MIT), which can be built as a static library and linked to this project. For this to work, you need to ``#define`` some variables including ``RENDERDOC_FOR_SHADERS;RENDERDOC_EXPORTS;RENDERDOC_PLATFORM_WIN32``. Real time visualization of the segmentation map is provided by the reshade shader ``reshade_shaders/segmentation_visualization.fx``.
+For semantic segmentation, I use part of [`RenderDoc`](https://github.com/baldurk/renderdoc) (License: MIT), which is included in this project. Real time visualization of the segmentation map is provided by the reshade shader ``reshade_shaders/segmentation_visualization.fx``.
 
 For some games, I use a mod plugin to read the camera matrix. Check the `mod_scripts` folder in this repo for a script for supported games; it should have some comments to help lead you to installing for that game.
 

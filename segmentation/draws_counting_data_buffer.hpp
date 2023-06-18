@@ -1,6 +1,6 @@
 // Copyright (C) 2023 Jason Bunk
 #pragma once
-#include "rt_resource.hpp"
+#include "resource_helper.hpp"
 #include <string>
 #include <atomic>
 #include <mutex>
@@ -14,10 +14,13 @@
 * so that that draw's shader can access it as the indicator of which draw call it was.
 * A custom shader can draw that "draw index" as a pixel segmentation map.
 * Meanwhile, metadata for each draw call is stashed here to interpret that segmentation map.
+*
+* UPDATE: The above works for DirectX 10 and 11. For DirectX 12, instead of creating lots of views,
+* we can just bind a counter offset to the resource using "SetGraphicsRootShaderResourceView()".
 */
 
 template<typename MetaT>
-class draws_counting_data_buffer : public rt_resource {
+class draws_counting_data_buffer : public resource_helper {
 	std::vector<uint32_t> cpu_data;
 	std::vector<reshade::api::resource_view> ridiculous_number_of_views;
 
@@ -35,7 +38,7 @@ public:
 
 	inline reshade::api::resource_view get_view_for_blank_or_null_draw() const {
 		std::lock_guard<std::mutex> lock(frame_mut);
-		return ridiculous_number_of_views[0];
+		return ridiculous_number_of_views.empty() ? { 0ull } : ridiculous_number_of_views[0];
 	}
 
 	template<typename MetaT>
@@ -54,9 +57,9 @@ public:
 	template<typename MetaT>
 	inline reshade::api::resource_view stash_metadata_and_get_view_for_draw(const MetaT meta) {
 		std::lock_guard<std::mutex> lock(frame_mut);
-		if (ridiculous_number_of_views.empty()) {
+		if (ridiculous_number_of_views.empty() || perdraw_meta.empty()) {
 			reshade::log_message(reshade::log_level::error, "draws_counting_data_buffer: need to create buffer before using");
-			return { 0 };
+			return { 0ull };
 		}
 		if (perdraw_counter >= perdraw_meta.size()) {
 			counter_wrapped = true;
@@ -86,21 +89,24 @@ public:
 			return false;
 		}
 
-		ridiculous_number_of_views.resize(num_views);
-		perdraw_meta.resize(ridiculous_number_of_views.size());
-		for(size_t ii=0; ii < ridiculous_number_of_views.size(); ++ii)
-			if (!device->create_resource_view(rsc, resourceusage, reshade::api::resource_view_desc(reshade::api::format::r32_uint, ii, 1u), &(ridiculous_number_of_views[ii]))) {
-				reshade::log_message(reshade::log_level::error, std::string(std::string("draws_counting_data_buffer: Failed to create resource view ")+std::to_string(ii)).c_str());
-				device->destroy_resource(rsc);
-				return false;
-			}
+		perdraw_meta.resize(num_views);
+
+		if (device->get_api() != reshade::api::device_api::d3d12) {
+			ridiculous_number_of_views.resize(num_views);
+			for (size_t ii = 0; ii < ridiculous_number_of_views.size(); ++ii)
+				if (!device->create_resource_view(rsc, resourceusage, reshade::api::resource_view_desc(reshade::api::format::r32_uint, ii, 1u), &(ridiculous_number_of_views[ii]))) {
+					reshade::log_message(reshade::log_level::error, std::string(std::string("draws_counting_data_buffer: Failed to create resource view ") + std::to_string(ii)).c_str());
+					device->destroy_resource(rsc);
+					return false;
+				}
+		}
 
 		isvalid = true;
 		reshade::log_message(reshade::log_level::info, std::string(std::string("draws_counting_data_buffer: successfully created counter for up to ")+std::to_string(num_views)+std::string(" draws")).c_str());
 		return isvalid;
 	}
 
-	inline void delete_resources(reshade::api::device* device) {
+	virtual void delete_resource(reshade::api::device* device) override {
 		if (device == nullptr) return;
 		std::lock_guard<std::mutex> lock(frame_mut);
 		if (isvalid) {

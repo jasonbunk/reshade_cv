@@ -3,7 +3,6 @@
 #include <reshade.hpp>
 #include "gcv_reshade/generic_depth_struct.h"
 #include "render_target_stats/clicked_rgb_rendertargets.hpp"
-#include "rt_resource.hpp"
 #include "segmentation_app_data.hpp"
 #include "semseg_shader_register_bind.hpp"
 #include "command_list_state.hpp"
@@ -15,8 +14,8 @@ static void on_device_init(reshade::api::device* device) {
 static void on_device_destroy(reshade::api::device* device) {
 	{
 		auto& mapp = device->get_private_data<segmentation_app_data>();
-		if (mapp.r_accum_bonus.isvalid) mapp.r_accum_bonus.delete_texture(device);
-		if (mapp.r_counter_buf.isvalid) mapp.r_counter_buf.delete_resources(device);
+		mapp.r_accum_bonus.delete_resource(device);
+		mapp.r_counter_buf.delete_resource(device);
 	}
 	device->destroy_private_data<segmentation_app_data>();
 }
@@ -50,7 +49,7 @@ bool segmapp_on_draw_plain_or_indexed(reshade::api::command_list* cmd_list, uint
 	if (vertices_per_instance > 1 && !cmdlst_state.rtvs.empty() && cmdlst_state.rtvs[0].handle != 0ull && cmdlst_state.dsv.handle != 0ull) {
 		reshade::api::device* const device = cmd_list->get_device();
 		auto& mapp = device->get_private_data<segmentation_app_data>();
-		if (mapp.do_intercept_draw && mapp.r_accum_bonus.isvalid && mapp.r_counter_buf.isvalid) {
+		if (mapp.do_intercept_draw && mapp.r_accum_bonus.is_valid() && mapp.r_counter_buf.is_valid()) {
 			const reshade::api::resource currst0rsrc = device->get_resource_from_view(cmdlst_state.rtvs[0]);
 			const reshade::api::resource currdepthrc = device->get_resource_from_view(cmdlst_state.dsv);
 			if (mapp.rsrcs_of_presented_rgb.count(currst0rsrc.handle) && currdepthrc == mapp.rsrc_of_presented_depth) {
@@ -107,19 +106,8 @@ static bool set_or_resize_app_texture(segmentation_app_data& mapp, reshade::api:
 	mapp.rsrc_of_presented_depth = tex_depth;
 
 	reshade::api::resource_desc depthdesc = device->get_resource_desc(tex_depth);
-	bool neednew = !mapp.r_accum_bonus.isvalid;
-	if (!neednew) {
-		reshade::api::resource_desc curdesc = device->get_resource_desc(mapp.r_accum_bonus.rsc);
-		neednew = (depthdesc.texture.width != curdesc.texture.width || depthdesc.texture.height != curdesc.texture.height);
-	}
-	if (neednew) {
-		reshade::log_message(reshade::log_level::info, "creating texture");
-		if (mapp.r_accum_bonus.isvalid) {
-			mapp.r_accum_bonus.delete_texture(device);
-		}
-		mapp.r_accum_bonus.create_texture(device, depthdesc.texture.width, depthdesc.texture.height,
-				reshade::api::format::r32g32b32a32_uint, reshade::api::resource_usage::render_target);
-	}
+	mapp.r_accum_bonus.create_or_resize_texture(device, depthdesc.texture.width, depthdesc.texture.height,
+			reshade::api::format::r32g32b32a32_uint, reshade::api::resource_usage::render_target);
 	return true;
 }
 

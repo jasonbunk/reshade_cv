@@ -1,7 +1,7 @@
 // Copyright (C) 2023 Jason Bunk
 #include "semseg_shader_register_bind.hpp"
-#include "customize_dxbc.hpp"
-#include "rdoc_utils.hpp"
+#include "segmentation_shadering/customize_dxbc.hpp"
+#include "reshade_graphics_api_util.hpp"
 #include "command_list_state.hpp"
 #include "xxhash.h"
 #include <sstream>
@@ -53,6 +53,7 @@ bool on_create_pipeline_add_semseg(device* device, pipeline_layout playout, uint
 		}
 	}
 	if (verbose) ss << "  num shaders: pixel " << num_pixl << ", vertex " << num_vert << ", num geom/hull/domain: " << num_unwanted << endl;
+	const auto graphics_api = reshade_api_to_my_graphics_api(device->get_api());
 
 	if ((num_pixl == 1 || num_vert == 1) && num_unwanted == 0) {
 		auto& mapp = device->get_private_data<segmentation_app_data>();
@@ -81,7 +82,8 @@ bool on_create_pipeline_add_semseg(device* device, pipeline_layout playout, uint
 					mapp.shader_hash_to_custom_shader_bytes.emplace(shws.hash, shws.b);
 					modsucceeded = customize_shader_dxbc_or_dxil(
 						subobjects[i].type == pipeline_subobject_type::pixel_shader,
-						device->get_api(), shws.b, shws.r, ss);
+						graphics_api,
+						shws.b, shws.r, ss);
 				}
 				if (modsucceeded) {
 					shws.good = true;

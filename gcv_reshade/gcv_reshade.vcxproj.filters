@@ -94,9 +94,6 @@
     <ClCompile Include="..\render_target_stats\render_target_stats_tracking.cpp">
       <Filter>render_target_stats</Filter>
     </ClCompile>
-    <ClCompile Include="..\segmentation\customize_dxbc.cpp">
-      <Filter>segmentation</Filter>
-    </ClCompile>
     <ClCompile Include="..\segmentation\semseg_shader_register_bind.cpp">
       <Filter>segmentation</Filter>
     </ClCompile>
@@ -246,16 +243,7 @@
     <ClInclude Include="..\segmentation\semseg_shader_register_bind.hpp">
       <Filter>segmentation</Filter>
     </ClInclude>
-    <ClInclude Include="..\segmentation\custom_shader_layout_registers.hpp">
-      <Filter>segmentation</Filter>
-    </ClInclude>
-    <ClInclude Include="..\segmentation\customize_dxbc.hpp">
-      <Filter>segmentation</Filter>
-    </ClInclude>
-    <ClInclude Include="..\segmentation\rdoc_utils.hpp">
-      <Filter>segmentation</Filter>
-    </ClInclude>
-    <ClInclude Include="..\segmentation\rt_resource.hpp">
+    <ClInclude Include="..\segmentation\resource_helper.hpp">
       <Filter>segmentation</Filter>
     </ClInclude>
     <ClInclude Include="..\segmentation\segmentation_app_data.hpp">
@@ -280,6 +268,15 @@
       <Filter>segmentation</Filter>
     </ClInclude>
     <ClInclude Include="..\segmentation\colormap_util.hpp">
+      <Filter>segmentation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gcv_utils\assert_utils.hpp">
+      <Filter>gcv_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\segmentation\reshade_stringify_utils.hpp">
+      <Filter>segmentation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\segmentation\reshade_graphics_api_util.hpp">
       <Filter>segmentation</Filter>
     </ClInclude>
   </ItemGroup>
