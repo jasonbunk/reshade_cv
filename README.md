@@ -62,8 +62,11 @@ NeRFs below were computed using the camera matrix extracted from the game, direc
 [![HZD NeRF](https://img.youtube.com/vi/7MRoxrtSn0k/0.jpg)](https://youtu.be/7MRoxrtSn0k)
 
 ### Crysis data (cloud / segmentation / NeRF)
-Harbor: 383 images, 3 times of day, 1080p:
-[Google Drive download](https://drive.google.com/file/d/1qeNEMXdliYBKauxdoas8jQUCPR3MsSxv/view?usp=sharing)
+
+Harbor: 383 images, 3 times of day, 1080p: [Google Drive download (2 GB)](https://drive.google.com/file/d/1qeNEMXdliYBKauxdoas8jQUCPR3MsSxv/view?usp=sharing)
+(Includes precomputed Instant-NGP NeRF, and everything needed to recreate, including transforms.json and depth supervision)
+
+<a href="https://drive.google.com/file/d/1qeNEMXdliYBKauxdoas8jQUCPR3MsSxv/view?usp=sharing"><img src="https://github.com/jasonbunk/reshade_cv/assets/6532938/c9b5c234-6bab-42a4-9588-3adae85b9fca" width="600"></a>
 
 # Build notes
 
