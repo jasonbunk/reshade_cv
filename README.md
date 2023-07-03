@@ -58,6 +58,8 @@ NeRFs below were computed using the camera matrix extracted from the game, direc
 ![cyberpunk_nerf](https://user-images.githubusercontent.com/6532938/212845074-bf320377-5b56-429f-b47a-eb2238f684a2.gif)
 [![Cyberpunk Point Cloud](https://img.youtube.com/vi/E-JLTHHH_pk/0.jpg)](https://youtu.be/E-JLTHHH_pk)
 
+Cyberpunk desert gas station dataset (point cloud / NeRF / registration; no semantic seg): <a href="https://drive.google.com/file/d/1budgfVnVYdh8VPOTfvT7UTX4wo8Xb7Zq/view?usp=sharing">Google drive download (2.4 GB, 422 images, 12 times of day / weather conditions)</a>
+
 ### Horizon Zero Dawn NeRF
 [![HZD NeRF](https://img.youtube.com/vi/7MRoxrtSn0k/0.jpg)](https://youtu.be/7MRoxrtSn0k)
 

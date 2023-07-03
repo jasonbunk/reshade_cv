@@ -113,7 +113,7 @@ static bool set_or_resize_app_texture(segmentation_app_data& mapp, reshade::api:
 
 bool segmentation_app_update_on_finish_effects(reshade::api::effect_runtime* runtime, bool requested_draw) {
 	reshade::api::device* const device = runtime->get_device();
-	if (device->get_api() != reshade::api::device_api::d3d10 && device->get_api() != reshade::api::device_api::d3d11) return false;
+	if (device->get_api() != reshade::api::device_api::d3d10 && device->get_api() != reshade::api::device_api::d3d11) return requested_draw;
 	auto& mapp = device->get_private_data<segmentation_app_data>();
 	auto& clicked = device->get_private_data<clicked_rgb_rendertargets>();
 	if (mapp.save_buf_tex_at_end_of_draw) {
