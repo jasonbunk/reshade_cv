@@ -22,13 +22,17 @@ protected:
   // and also the two from GameInterface returning the string name of the game
   virtual std::string camera_dll_name() const = 0;
   virtual uint64_t camera_dll_mem_start() const = 0;
-  virtual uint64_t camera_dll_second_memloc() const { return 0; } // only used if rotation matrix and position are in different locations
   virtual GameCamDLLMatrixType camera_dll_matrix_format() const = 0;
+
+  virtual void camera_matrix_postprocess_rotate(CamMatrixData& rcam) const {};
 
   virtual scriptedcam_checkbuf_funptr get_scriptedcambuf_checkfun() const;
   virtual uint64_t get_scriptedcambuf_sizebytes() const { return 0; }
   virtual bool copy_scriptedcambuf_to_matrix(uint8_t* buf, uint64_t buflen, CamMatrixData& rcam, std::string& errstr) const { return false; }
+
+private:
   bool read_scripted_cambuf_and_copy_to_matrix(CamMatrixData& rcam, std::string& errstr); // not virtual, no need to override; just override the above three
+  bool get_raw_camera_matrix(CamMatrixData& rcam, std::string& errstr); // no post-processing (such as rotation)
 
 public:
   virtual bool init_in_game() override;

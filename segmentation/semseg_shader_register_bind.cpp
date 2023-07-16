@@ -27,6 +27,11 @@ static std::atomic<int> numvalidshaderssuccessfullymodified = { 0 };
 
 bool on_create_pipeline_add_semseg(device* device, pipeline_layout playout, uint32_t subobject_count, const pipeline_subobject* subobjects) {
 
+#ifdef RENDERDOC_FOR_SHADERS
+#else
+	return false;
+#endif
+
 	if (device->get_api() != device_api::d3d10 && device->get_api() != device_api::d3d11) return false; // these are the only supported APIs for now
 
 	bool pipemodified = false;

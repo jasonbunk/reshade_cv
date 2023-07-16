@@ -48,6 +48,7 @@ static void on_reshade_finish_effects(reshade::api::effect_runtime *runtime,
 		bool capgood = true;
 		nlohmann::json metajson;
 
+#if RENDERDOC_FOR_SHADERS
 		if(shdata.depth_settings.more_verbose || shdata.depth_settings.debug_mode) {
 			if (shdata.save_texture_image_needing_resource_barrier_copy(basefilen + std::string("semsegrawbuffer"),
 					ImageWriter_STB_png, cmdqueue, segmapp.r_accum_bonus.rsc, TexInterp_IndexedSeg)) {
@@ -65,6 +66,7 @@ static void on_reshade_finish_effects(reshade::api::effect_runtime *runtime,
 			capmessage << "semseg failed; ";
 			capgood = false;
 		}
+#endif
 
 		if (shdata.get_camera_matrix(gamecam, errstr)) {
 			gamecam.into_json(metajson);

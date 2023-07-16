@@ -17,7 +17,7 @@ bool GameWithCameraDataInOneDLL::init_in_game() {
 }
 
 
-bool dummy_check_scriptedcambuf(const void* scanctx, const uint8_t* buf, uint64_t buflen) {
+static bool dummy_check_scriptedcambuf(const void* scanctx, const uint8_t* buf, uint64_t buflen) {
     return true;
 }
 scriptedcam_checkbuf_funptr GameWithCameraDataInOneDLL::get_scriptedcambuf_checkfun() const {
@@ -42,7 +42,7 @@ bool GameWithCameraDataInOneDLL::read_scripted_cambuf_and_copy_to_matrix(CamMatr
 }
 
 
-bool GameWithCameraDataInOneDLL::get_camera_matrix(CamMatrixData& rcam, std::string& errstr) {
+bool GameWithCameraDataInOneDLL::get_raw_camera_matrix(CamMatrixData& rcam, std::string& errstr) {
   rcam.extrinsic_status = CamMatrix_Uninitialized;
   if (!init_in_game()) return false;
   const GameCamDLLMatrixType mattype = camera_dll_matrix_format();
@@ -83,6 +83,13 @@ bool GameWithCameraDataInOneDLL::get_camera_matrix(CamMatrixData& rcam, std::str
   }
   rcam.extrinsic_status = CamMatrix_AllGood;
   return true;
+}
+
+bool GameWithCameraDataInOneDLL::get_camera_matrix(CamMatrixData& rcam, std::string& errstr) {
+  const bool matrix_ok = get_raw_camera_matrix(rcam, errstr);
+  if (matrix_ok)
+    camera_matrix_postprocess_rotate(rcam);
+  return matrix_ok;
 }
 
 #include <reshade.hpp>

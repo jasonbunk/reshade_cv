@@ -103,6 +103,9 @@
     <ClCompile Include="..\segmentation\buffer_indexing_colorization.cpp">
       <Filter>segmentation</Filter>
     </ClCompile>
+    <ClCompile Include="..\gcv_games\DishonoredDOTO.cpp">
+      <Filter>gcv_games</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\3rdparty\concurrentqueue.h">
@@ -273,11 +276,11 @@
     <ClInclude Include="..\gcv_utils\assert_utils.hpp">
       <Filter>gcv_utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\segmentation\reshade_stringify_utils.hpp">
-      <Filter>segmentation</Filter>
-    </ClInclude>
     <ClInclude Include="..\segmentation\reshade_graphics_api_util.hpp">
       <Filter>segmentation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gcv_games\DishonoredDOTO.h">
+      <Filter>gcv_games</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

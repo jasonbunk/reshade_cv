@@ -103,6 +103,7 @@
     <ClCompile Include="..\gcv_games\Control.cpp" />
     <ClCompile Include="..\gcv_games\Crysis.cpp" />
     <ClCompile Include="..\gcv_games\Cyberpunk2077.cpp" />
+    <ClCompile Include="..\gcv_games\DishonoredDOTO.cpp" />
     <ClCompile Include="..\gcv_games\game_interface.cpp" />
     <ClCompile Include="..\gcv_games\game_interface_factory.cpp" />
     <ClCompile Include="..\gcv_games\game_with_camera_data_in_one_dll.cpp" />
@@ -149,6 +150,7 @@
     <ClInclude Include="..\gcv_games\Control.h" />
     <ClInclude Include="..\gcv_games\Crysis.h" />
     <ClInclude Include="..\gcv_games\Cyberpunk2077.h" />
+    <ClInclude Include="..\gcv_games\DishonoredDOTO.h" />
     <ClInclude Include="..\gcv_games\game_interface_factory.h" />
     <ClInclude Include="..\gcv_games\game_interface.h" />
     <ClInclude Include="..\gcv_games\game_interface_factory_registration.h" />
@@ -176,7 +178,6 @@
     <ClInclude Include="..\segmentation\command_list_state.hpp" />
     <ClInclude Include="..\segmentation\reshade_graphics_api_util.hpp" />
     <ClInclude Include="..\segmentation\reshade_hooks.hpp" />
-    <ClInclude Include="..\segmentation\reshade_stringify_utils.hpp" />
     <ClInclude Include="..\segmentation\resource_helper.hpp" />
     <ClInclude Include="..\segmentation\semseg_shader_register_bind.hpp" />
     <ClInclude Include="..\segmentation\segmentation_app_data.hpp" />
