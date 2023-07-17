@@ -39,7 +39,6 @@ Useful functionality is currently working, but this is a work in progress.
 
 * Documentation, tutorial
 * Camera data from more games
-* Point cloud python script: using calibrated depth map, extrinsic & intrinsic matrix from supported games.
 * Segmentation tool to help map mesh/shader IDs to a semantic category schema such as COCO.
 * Tool to move camera/player to systematically scan large areas to create big datasets.
 
@@ -92,6 +91,14 @@ For some games, I use a mod plugin to read the camera matrix. Check the `mod_scr
 
 Visual studio produces a *.addon for ReShade; that should be copied to your game folder (alongside the game executable and ReShade.log).
 
+## Usage
+
+Inside the game, you can press [F11](https://github.com/jasonbunk/reshade_cv/blob/ab44d4ed011475deb0df59f2025473b074957382/gcv_reshade/main.cpp#L38) to save a snapshot.
+
+For supported games which save 3D camera coordinates in the json, you can convert snapshots to a NeRF-ready `transforms.json` [with this script](python_threedee/convert_game_snapshot_jsons_to_nerf_transformsjson.py).
+
+For supported games which provide calibrated depth maps, you can view or save snapshots as 3D point clouds [with load_point_cloud.py](python_threedee/load_point_cloud.py).
+
 ## Other software included in this repo
 
 Other useful software is already included here and in the Visual Studio build. No need to download them.
@@ -99,3 +106,4 @@ Other useful software is already included here and in the Visual Studio build. N
 * [`fpzip`](https://github.com/LLNL/fpzip) for lossless compression of the floating point depth buffer. (You can load the images in python using [this helpful pypi package](https://github.com/seung-lab/fpzip)). License: BSD 3-Clause.
 * [`concurrentqueue`](https://github.com/cameron314/concurrentqueue) for a thread safe parallel queue. License: Simplified BSD.
 * [`cnpy`](https://github.com/rogersce/cnpy.git) slightly modified to remove *.npz support to remove dependency on zlib. License: MIT.
+* [`RenderDoc`](https://github.com/baldurk/renderdoc) used for shader processing for segmentation. License: MIT.
