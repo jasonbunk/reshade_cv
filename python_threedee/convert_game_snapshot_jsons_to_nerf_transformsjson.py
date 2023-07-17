@@ -10,20 +10,10 @@ from functools import partial
 from tqdm.contrib.concurrent import process_map
 import cv2
 import numpy as np
-from game_camera import focallengthperpixel_fromfovdegrees, \
-  vertical_fov_from_horizontal_fov_degrees, \
-  horizontal_fov_from_vertical_fov_degrees
-
-
-# given either, get both horizontal and vertical fov
-def fovv_and_fovh_degrees(fovv:float, fovh:float, screen_aspect):
-  havefov_v = (fovv > 0. and fovv < 181.)
-  havefov_h = (fovh > 0. and fovh < 181.)
-  assert (havefov_v or havefov_h) and not (havefov_v and havefov_h), f'provide one fov: {fovv}, {fovh}'
-  if havefov_v:
-    return fovv, horizontal_fov_from_vertical_fov_degrees(fovv, screen_aspect)
-  else:
-    return vertical_fov_from_horizontal_fov_degrees(fovh, screen_aspect), fovh
+from game_camera import (
+  focallengthperpixel_fromfovdegrees,
+  fovv_and_fovh_degrees_given_either
+)
 
 
 # https://github.com/NVlabs/instant-ngp/blob/a0090e4cad3ce3a5e52ad4239e5f5e2f9c70ebff/scripts/colmap2nerf.py#L144-L148
@@ -37,7 +27,7 @@ def convert_image_with_cam_json_to_nerf_transform(imgpath:str, fovv:float, fovh:
   assert os.path.isfile(imgpath), imgpath
   iendsw = '_RGB.png'
   assert imgpath.endswith(iendsw), imgpath
-  jsonpath = imgpath[:-len(iendsw)]+'_camera.json'
+  jsonpath = imgpath[:-len(iendsw)]+'_meta.json'
   assert os.path.isfile(jsonpath), jsonpath
   with open(jsonpath,'r') as infile:
     jdict = json.load(infile)
@@ -49,7 +39,11 @@ def convert_image_with_cam_json_to_nerf_transform(imgpath:str, fovv:float, fovh:
   assert matdictkey in jdict, f'{sorted(list(jdict.keys()))} -- {jsonpath}'
   assert len(jdict[matdictkey]) == 12, str(len(jdict[matdictkey]))+' -- '+str(jsonpath)
 
-  fov_v, fov_h = fovv_and_fovh_degrees(fovv, fovh, imww/imhh)
+  if 'fov_v_degrees' in jdict:
+    fovv = jdict['fov_v_degrees']; fovh = -999.
+  elif 'fov_h_degrees' in jdict:
+    fovh = jdict['fov_h_degrees']; fovv = -999.
+  fov_v, fov_h = fovv_and_fovh_degrees_given_either(fovv, fovh, imww/imhh)
   fx = focallengthperpixel_fromfovdegrees(fov_h)
   fy = focallengthperpixel_fromfovdegrees(fov_v)
   screenwhf = math.sqrt(float(imww) * float(imhh))
@@ -91,7 +85,7 @@ if __name__ == '__main__':
   parser.add_argument("-fovv", "--fov_degrees_vertical", type=float, default=-999.0)
   parser.add_argument("-fovh", "--fov_degrees_horizontal", type=float, default=-999.0)
   parser.add_argument("--aabb_scale", type=int, default=4, help="Nerf parameter. Must be power of 2. Larger numbers are for large scenes with background stuff in the distance.")
-  parser.add_argument("imagefiles", nargs="+", help="next to each image should be a _camera.json")
+  parser.add_argument("imagefiles", nargs="+", help="next to each image should be a _meta.json")
   args = parser.parse_args()
   imagefiles = []
   for fpth in args.imagefiles:
