@@ -55,9 +55,9 @@ def convert_image_with_cam_json_to_nerf_transform(imgpath:str, fovv:float, fovh:
 
   # change coordinate system from game (character looks down y axis; z points up)
   # to nerf/colmap (X axis points to the right, the Y axis to the bottom, and the Z axis to the front as seen from the image)
-  fixcoords = np.float64([[ 1, 0, 0, 0], \
-                          [ 0, 0,-1, 0], \
-                          [ 0, 1, 0, 0], \
+  fixcoords = np.float64([[ 1, 0, 0, 0],
+                          [ 0, 0,-1, 0],
+                          [ 0, 1, 0, 0],
                           [ 0, 0, 0, 1]])
   colmap_cam2world = np.matmul(extrinsic_cam2world, fixcoords)
 
@@ -82,8 +82,8 @@ def convert_image_with_cam_json_to_nerf_transform(imgpath:str, fovv:float, fovh:
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
-  parser.add_argument("-fovv", "--fov_degrees_vertical", type=float, default=-999.0)
-  parser.add_argument("-fovh", "--fov_degrees_horizontal", type=float, default=-999.0)
+  parser.add_argument("-fovv", "--fov_degrees_vertical", type=float, default=-999.0, help="provide if game snapshots didnt contain")
+  parser.add_argument("-fovh", "--fov_degrees_horizontal", type=float, default=-999.0, help="provide if game snapshots didnt contain")
   parser.add_argument("--aabb_scale", type=int, default=4, help="Nerf parameter. Must be power of 2. Larger numbers are for large scenes with background stuff in the distance.")
   parser.add_argument("imagefiles", nargs="+", help="next to each image should be a _meta.json")
   args = parser.parse_args()
@@ -100,7 +100,7 @@ if __name__ == '__main__':
   intrinsics = {}
   camtransfperframe = []
   centroid = []
-  for (camtransf, camheader) in process_map(partial(convert_image_with_cam_json_to_nerf_transform, \
+  for (camtransf, camheader) in process_map(partial(convert_image_with_cam_json_to_nerf_transform,
     fovv=args.fov_degrees_vertical, fovh=args.fov_degrees_horizontal), imagefiles):
     centroid.append(camtransf['transform_matrix'][:3,3])
     camtransfperframe.append(camtransf)
@@ -122,6 +122,7 @@ if __name__ == '__main__':
     camtransfperframe[ii]['transform_matrix'][:3,3] -= centroid
     camtransfperframe[ii]['transform_matrix'] = camtransfperframe[ii]['transform_matrix'].tolist()
 
+  # write one intrinsic which is the mean of snapshots... assumes all images taken with same field of view!
   transformjson = {kk:sum(vv)/len(vv) for kk,vv in intrinsics.items()}
   if abs(scale - 1.0) > 0.01:
     transformjson['scale'] = 1.0 / float(scale)

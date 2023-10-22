@@ -57,17 +57,17 @@ NeRFs below were computed using the camera matrix extracted from the game, direc
 ![cyberpunk_nerf](https://user-images.githubusercontent.com/6532938/212845074-bf320377-5b56-429f-b47a-eb2238f684a2.gif)
 [![Cyberpunk Point Cloud](https://img.youtube.com/vi/E-JLTHHH_pk/0.jpg)](https://youtu.be/E-JLTHHH_pk)
 
-Cyberpunk desert gas station dataset (point cloud / NeRF / registration; no semantic seg): <a href="https://drive.google.com/file/d/1budgfVnVYdh8VPOTfvT7UTX4wo8Xb7Zq/view?usp=sharing">Google drive download (2.4 GB, 422 images, 12 times of day / weather conditions)</a>
+Cyberpunk desert gas station dataset (point cloud / NeRF / registration; no semantic seg): <a href="https://drive.google.com/file/d/1aQ2DBiI6yqz4kjZV1ofUrjC_RYTI34EP/view?usp=sharing">Google drive download (2.4 GB, 422 images, 12 times of day / weather conditions)</a>
 
 ### Horizon Zero Dawn NeRF
 [![HZD NeRF](https://img.youtube.com/vi/7MRoxrtSn0k/0.jpg)](https://youtu.be/7MRoxrtSn0k)
 
 ### Crysis data (cloud / segmentation / NeRF)
 
-Harbor: 383 images, 3 times of day, 1080p: [Google Drive download (2 GB)](https://drive.google.com/file/d/1qeNEMXdliYBKauxdoas8jQUCPR3MsSxv/view?usp=sharing)
+Harbor: 383 images, 3 times of day, 1080p: [Google Drive download (2 GB)](https://drive.google.com/file/d/1eFyvp5rR5ZKDuvm3FTppCilztKB1VIbP/view?usp=sharing)
 (Includes precomputed Instant-NGP NeRF, and everything needed to recreate, including transforms.json and depth supervision)
 
-<a href="https://drive.google.com/file/d/1qeNEMXdliYBKauxdoas8jQUCPR3MsSxv/view?usp=sharing"><img src="https://github.com/jasonbunk/reshade_cv/assets/6532938/c9b5c234-6bab-42a4-9588-3adae85b9fca" width="600"></a>
+<a href="https://drive.google.com/file/d/1eFyvp5rR5ZKDuvm3FTppCilztKB1VIbP/view?usp=sharing"><img src="https://github.com/jasonbunk/reshade_cv/assets/6532938/c9b5c234-6bab-42a4-9588-3adae85b9fca" width="600"></a>
 
 # Build notes
 
